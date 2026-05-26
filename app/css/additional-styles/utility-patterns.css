@@ -1,0 +1,311 @@
+/* Buttons */
+.btn,
+.btn-sm {
+    @apply text-sm font-medium inline-flex items-center justify-center rounded-lg whitespace-nowrap transition-all;
+}
+
+.btn {
+    @apply px-4 py-[11px] shadow-lg;
+}
+
+.btn-sm {
+    @apply px-3 py-[5px] shadow-sm;
+}
+
+/* Forms */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+.form-input,
+.form-textarea,
+.form-multiselect,
+.form-select,
+.form-checkbox,
+.form-radio {
+    @apply border border-gray-200 shadow-xs rounded-lg focus:ring-0 focus:ring-offset-0;
+}
+
+:where(.dark, .dark *) :is(.form-input, .form-textarea, .form-multiselect, .form-select, .form-checkbox, .form-radio) {
+    @apply border-gray-700;
+}
+
+.form-input,
+.form-textarea,
+.form-multiselect,
+.form-select {
+    @apply bg-white text-sm py-2.5 px-4 focus:border-blue-300;
+}
+
+:where(.dark, .dark *) :is(.form-input, .form-textarea, .form-multiselect, .form-select) {
+    @apply bg-gray-800 text-gray-200;
+}
+
+.form-input,
+.form-textarea {
+    @apply placeholder-gray-400;
+}
+
+.form-select {
+    @apply pr-10;
+}
+
+.form-checkbox,
+.form-radio {
+    @apply text-gray-800 checked:bg-blue-500 checked:border-transparent focus-visible:not-checked:border-blue-300;
+}
+
+.form-checkbox {
+    @apply rounded-xs;
+}
+
+/* WIP - Disable footer links  */
+.disabled-link {
+    pointer-events: none;
+  }
+  
+  /* WaitlistForm */
+  
+  /* @layer base { */
+  .text-stroke {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+  }
+  
+  .gradient {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.12) 100%
+    );
+  }
+  
+  .waitlist-form {
+    --primary: #111827;
+    --primary-dark: #0c1221;
+    --primary-darkest: #060910;
+    --input-placeholder: #a6accd;
+    --input-text: #646b8c;
+    --border-default: #e1e6f9;
+    --border-active: #111827;
+    --background: #fff;
+    --button-text: #ffffff;
+    --success: #111827;
+    --trails: rgb(15, 23, 42, 0.8);
+  }
+
+  .dark .waitlist-form {
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --primary-darkest: #1d4ed8;
+    --input-placeholder: #6b7280;
+    --input-text: #d1d5db;
+    --border-default: #374151;
+    --border-active: #60a5fa;
+    --background: #1f2937;
+    --button-text: #ffffff;
+    --success: #60a5fa;
+    --trails: rgb(59, 130, 246, 0.8);
+  }
+  
+  /* Remove blue outline on input */ /* This removes any box-shadow that might be causing the blue outline */
+  .waitlist-form input:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  
+  .waitlist-form button {
+    --text-opacity: 1;
+    --success-x: -12px;
+    --success-stroke: 14px;
+    --success-opacity: 0;
+    --border-radius: 7px;
+    --overflow: hidden;
+    --x: 0px;
+    --y: 0px;
+    --rotate: 0deg;
+    --plane-x: 0px;
+    --plane-y: 0px;
+    --plane-opacity: 1;
+    --trails-stroke: 57px;
+    --left-wing-background: var(--primary);
+    --left-wing-first-x: 0%;
+    --left-wing-first-y: 0%;
+    --left-wing-second-x: 50%;
+    --left-wing-second-y: 0%;
+    --left-wing-third-x: 0%;
+    --left-wing-third-y: 100%;
+    --left-body-background: var(--primary);
+    --left-body-first-x: 50%;
+    --left-body-first-y: 0%;
+    --left-body-second-x: 50%;
+    --left-body-second-y: 100%;
+    --left-body-third-x: 0%;
+    --left-body-third-y: 100%;
+    --right-wing-background: var(--primary);
+    --right-wing-first-x: 50%;
+    --right-wing-first-y: 0%;
+    --right-wing-second-x: 100%;
+    --right-wing-second-y: 0%;
+    --right-wing-third-x: 100%;
+    --right-wing-third-y: 100%;
+    --right-body-background: var(--primary);
+    --right-body-first-x: 50%;
+    --right-body-first-y: 0%;
+    --right-body-second-x: 50%;
+    --right-body-second-y: 100%;
+    --right-body-third-x: 100%;
+    --right-body-third-y: 100%;
+    position: relative;
+    /* padding: 8px 0; */
+    padding: 8px 10px;
+    min-width: 100px;
+    text-align: center;
+    /* font-weight: 600; */
+    font-weight: 500;
+    color: var(--button-text);
+    border-radius: var(--border-radius);
+    transform: translateZ(0);
+    transition:
+      opacity 0.25s,
+      filter 0.25s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .waitlist-form button:not(.active) {
+    background: var(--primary);
+  }
+  .waitlist-form button .plane,
+  .waitlist-form button .trails {
+    pointer-events: none;
+    position: absolute;
+  }
+  .waitlist-form button .plane {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transform: translate(var(--x), var(--y)) rotate(var(--rotate)) translateZ(0);
+  }
+  .waitlist-form button .plane .left,
+  .waitlist-form button .plane .right {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    opacity: var(--plane-opacity);
+    transform: translate(var(--plane-x), var(--plane-y)) translateZ(0);
+  }
+  .waitlist-form button .plane .left:before,
+  .waitlist-form button .plane .left:after,
+  .waitlist-form button .plane .right:before,
+  .waitlist-form button .plane .right:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--border-radius);
+    transform: translate(var(--part-x, 0.25%), var(--part-y, 0)) translateZ(0);
+    z-index: var(--z-index, 2);
+    background: var(--b, var(--left-wing-background));
+    -webkit-clip-path: polygon(
+      var(--first-x, var(--left-wing-first-x))
+        var(--first-y, var(--left-wing-first-y)),
+      var(--second-x, var(--left-wing-second-x))
+        var(--second-y, var(--left-wing-second-y)),
+      var(--third-x, var(--left-wing-third-x))
+        var(--third-y, var(--left-wing-third-y))
+    );
+    clip-path: polygon(
+      var(--first-x, var(--left-wing-first-x))
+        var(--first-y, var(--left-wing-first-y)),
+      var(--second-x, var(--left-wing-second-x))
+        var(--second-y, var(--left-wing-second-y)),
+      var(--third-x, var(--left-wing-third-x))
+        var(--third-y, var(--left-wing-third-y))
+    );
+  }
+  .waitlist-form button .plane .left:after {
+    --part-x: 0;
+    --z-index: 1;
+    --b: var(--left-body-background);
+    --first-x: var(--left-body-first-x);
+    --first-y: var(--left-body-first-y);
+    --second-x: var(--left-body-second-x);
+    --second-y: var(--left-body-second-y);
+    --third-x: var(--left-body-third-x);
+    --third-y: var(--left-body-third-y);
+  }
+  .waitlist-form button .plane .right:before {
+    --part-x: -0.25%;
+    --z-index: 2;
+    --b: var(--right-wing-background);
+    --first-x: var(--right-wing-first-x);
+    --first-y: var(--right-wing-first-y);
+    --second-x: var(--right-wing-second-x);
+    --second-y: var(--right-wing-second-y);
+    --third-x: var(--right-wing-third-x);
+    --third-y: var(--right-wing-third-y);
+  }
+  .waitlist-form button .plane .right:after {
+    --part-x: 0;
+    --z-index: 1;
+    --b: var(--right-body-background);
+    --first-x: var(--right-body-first-x);
+    --first-y: var(--right-body-first-y);
+    --second-x: var(--right-body-second-x);
+    --second-y: var(--right-body-second-y);
+    --third-x: var(--right-body-third-x);
+    --third-y: var(--right-body-third-y);
+  }
+  .waitlist-form button .trails {
+    display: block;
+    width: 33px;
+    height: 64px;
+    top: -4px;
+    left: 16px;
+    fill: none;
+    stroke: var(--trails);
+    stroke-linecap: round;
+    stroke-width: 2;
+    stroke-dasharray: 57px;
+    stroke-dashoffset: var(--trails-stroke);
+    transform: rotate(68deg) translateZ(0);
+  }
+  .waitlist-form button span {
+    display: block;
+    position: relative;
+    z-index: 4;
+    opacity: var(--text-opacity);
+  }
+  .waitlist-form button span.success {
+    z-index: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 8px;
+    transform: translateX(var(--success-x)) translateZ(0);
+    opacity: var(--success-opacity);
+    color: var(--success);
+  }
+  .waitlist-form button span.success svg {
+    display: inline-block;
+    vertical-align: top;
+    width: 16px;
+    height: 16px;
+    margin: 4px 8px 0 0;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 14px;
+    stroke: var(--success);
+    stroke-dashoffset: var(--success-stroke);
+  }
+  /* } */
+  

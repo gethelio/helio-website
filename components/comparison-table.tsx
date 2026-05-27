@@ -4,7 +4,7 @@ import { useState } from "react";
 
 type CellValue =
   | string
-  | { text: string; sub?: string; check?: boolean }
+  | { text: string; sub?: string; check?: boolean; x?: boolean }
   | true
   | false;
 
@@ -34,7 +34,7 @@ const plans = [
     ),
   },
   {
-    name: "Guild AI",
+    name: "Obot",
     icon: (
       <svg
         viewBox="0 0 16 16"
@@ -46,7 +46,7 @@ const plans = [
     ),
   },
   {
-    name: "JetStream",
+    name: "Built-in (Anthropic / OpenAI)",
     icon: (
       <svg
         viewBox="0 0 16 16"
@@ -58,19 +58,7 @@ const plans = [
     ),
   },
   {
-    name: "Cerbos",
-    icon: (
-      <svg
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        className="h-4 w-4 text-gray-400"
-      >
-        <circle cx="8" cy="8" r="6" />
-      </svg>
-    ),
-  },
-  {
-    name: "Platform-native",
+    name: "Framework (LangChain / CrewAI)",
     icon: (
       <svg
         viewBox="0 0 16 16"
@@ -89,57 +77,50 @@ const categories: Category[] = [
     id: "features",
     features: [
       {
-        name: "Primary Buyer",
+        name: "What it governs",
         values: [
-          "Developer",
-          "Enterprise",
-          "Enterprise",
-          "Developer",
+          "Per-call actions, stateful across calls",
+          "Which tools are reachable",
+          "Agent permissions inside one platform",
+          "Agent behavior inside one framework",
+        ],
+      },
+      {
+        name: "Governs agents you didn't build",
+        values: [
+          { text: "Any MCP agent", check: true },
+          { text: "Any MCP agent", check: true },
+          { text: "One platform only", x: true },
+          { text: "One framework only", x: true },
+        ],
+      },
+      {
+        name: "No agent code changes",
+        values: [
+          { text: "Proxy in the path", check: true },
+          { text: "Gateway in the path", check: true },
+          { text: "Within platform", check: true },
+          { text: "Integration required", x: true },
+        ],
+      },
+      {
+        name: "Evidence grounding",
+        values: [{ text: "Cumulative", check: true }, false, false, "Limited"],
+      },
+      {
+        name: "Open source",
+        values: [
+          { text: "Apache 2.0", check: true },
+          { text: "Apache 2.0", check: true },
+          false,
           "Varies",
         ],
       },
-      {
-        name: "Time to Value",
-        values: ["5 minutes", "Weeks", "Weeks", "Hours", "Built-in"],
-      },
-      {
-        name: "Open Source",
-        values: [
-          { text: "Apache 2.0", check: true },
-          false,
-          false,
-          { text: "Apache 2.0", check: true },
-          false,
-        ],
-      },
-      {
-        name: "Works with Existing Agents",
-        values: [true, false, true, true, "Single platform"],
-      },
-      {
-        name: "Approval Workflows",
-        values: [true, true, true, false, "Partial"],
-      },
-      {
-        name: "Transaction Controls",
-        values: [true, "Basic", "Basic", false, false],
-      },
-      {
-        name: "Full Audit Trail",
-        values: [
-          true,
-          "Within runtime",
-          "Within runtime",
-          "Decision logs",
-          "Within platform",
-        ],
-      },
-      { name: "Cross-platform", values: [true, false, true, true, false] },
     ],
   },
 ];
 
-const GRID_COLS = "grid-cols-[1fr_repeat(5,1fr)]";
+const GRID_COLS = "grid-cols-[1fr_repeat(4,1fr)]";
 
 function Check() {
   return (
@@ -177,14 +158,21 @@ function CellDisplay({ value }: { value: CellValue }) {
   if (value === true) return <Check />;
   if (value === false) return <XMark />;
   if (typeof value === "string")
-    return <span className="text-sm text-gray-700 dark:text-gray-300">{value}</span>;
+    return (
+      <span className="text-sm text-gray-700 dark:text-gray-300">{value}</span>
+    );
   return (
     <div className="flex items-center gap-1.5">
       {value.check && <Check />}
+      {value.x && <XMark />}
       <div>
-        <span className="text-sm text-gray-700 dark:text-gray-300">{value.text}</span>
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {value.text}
+        </span>
         {value.sub && (
-          <span className="block text-xs text-gray-400 dark:text-gray-500">{value.sub}</span>
+          <span className="block text-xs text-gray-400 dark:text-gray-500">
+            {value.sub}
+          </span>
         )}
       </div>
     </div>
@@ -215,9 +203,9 @@ export default function ComparisonTable() {
               How Helio compares
             </h2>
             <p className="text-lg text-gray-700 dark:text-gray-300">
-              Most options live inside a runtime or a vendor platform. Helio is
-              a protocol-level proxy that works with any MCP agent you&apos;ve
-              already built.
+              Most governance is locked to one platform, one framework, or only
+              controls which tools an agent can reach. Helio governs every tool
+              call across any MCP agent without any code changes.
             </p>
           </div>
 
@@ -382,11 +370,14 @@ export default function ComparisonTable() {
                           {val === true && <Check />}
                           {val === false && <XMark />}
                           {typeof val === "string" && (
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{val}</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {val}
+                            </span>
                           )}
                           {typeof val === "object" && val !== null && (
                             <>
                               {val.check && <Check />}
+                              {val.x && <XMark />}
                               <div className="text-right">
                                 <span className="text-sm text-gray-700 dark:text-gray-300">
                                   {val.text}

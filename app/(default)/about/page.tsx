@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Helio - Open-Source AI Agent Governance",
+  title: "About Helio - Open-Source MCP Governance for AI Agents",
   description:
     "Why we're building Helio: an open-source MCP governance layer for AI agents. Our principles, project status, and how to contribute.",
   alternates: { canonical: "/about" },
@@ -147,8 +147,8 @@ export default function About() {
                 Where the project is today
               </h2>
               <p className="mb-8 text-lg text-gray-700 dark:text-gray-300">
-                Helio is in beta. The proxy runs. The dashboard ships with it.
-                A starter ruleset covers the common dangers (drops, refunds,
+                Helio is in beta. The proxy runs. The dashboard ships with it. A
+                starter ruleset covers the common dangers (drops, refunds,
                 deletes, deploys). We&apos;re adding integrations, sharpening
                 defaults, and writing down lessons from teams already putting
                 agents in production. If you find a bug, file an issue. If you

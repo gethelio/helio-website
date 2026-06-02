@@ -1,0 +1,73 @@
+---
+title: "Malicious npm Packages With Valid SLSA Provenance: Inside the TanStack Attack"
+description: "On 11 May 2026, malicious @tanstack npm packages shipped with valid SLSA provenance (CVE-2026-45321). Why every signature check passed - and what it means for supply-chain trust."
+slug: "malicious-npm-packages-valid-slsa-provenance-tanstack"
+date: "2026-06-02"
+author: "Oli Guei"
+authorImg: "/images/oli-guei-profile-image.jpg"
+tags:
+  ["supply chain security", "SLSA provenance", "npm security", "TanStack", "AI tooling security"]
+keywords:
+  ["SLSA provenance malicious packages", "TanStack supply chain attack", "npm supply chain attack 2026", "CVE-2026-45321", "valid provenance attack", "runtime governance for AI agents"]
+canonicalUrl: "https://helio.so/blog/malicious-npm-packages-valid-slsa-provenance-tanstack"
+ogImage: "/blog/og/tanstack-provenance.png"
+---
+
+On 11 May 2026, between 19:20 and 19:26 UTC, someone published 84 malicious versions across 42 `@tanstack/*` npm packages. Six minutes, start to finish. `@tanstack/react-router` alone pulls north of 12 million weekly downloads, so the blast radius was enormous by default.
+
+The part that should keep you up at night isn't the speed. It's that the malicious packages passed every check. Valid signatures. Valid SLSA provenance. To npm, and to every security tool verifying cryptographic proof of origin, the poisoned versions looked completely legitimate - because in the narrow, technical sense that those tools measure, they _were_.
+
+This is the first documented case of malicious npm packages shipping with valid SLSA Build Level 3 provenance attestations. It's tracked as CVE-2026-45321, CVSS 9.6. And it quietly demolishes an assumption a lot of supply-chain security has been leaning on.
+
+## What people thought provenance guaranteed
+
+SLSA provenance is a cryptographic certificate, generated through Sigstore, that's meant to prove a package was built from a trusted source rather than tampered with somewhere along the way. The pitch, roughly, has been: verify the provenance and you know the artifact really came out of the project's own build pipeline, not from an attacker who slipped something in.
+
+That pitch was never wrong, exactly. It was just answering a narrower question than most people heard.
+
+## What actually happened
+
+No npm credentials were stolen. No maintainer was phished. The whole TanStack team had 2FA enabled. None of it mattered, because the attacker never went after any of that.
+
+Instead they chained a few well-known GitHub Actions weaknesses into a single path. A fork opened a pull request using the `pull_request_target` trigger, which runs with elevated permissions in the context of the base repository. That was used to poison the shared workflow cache. With the cache poisoned, the attacker got control of the OIDC token that the trusted-publisher setup uses - and then published through TanStack's own legitimate release workflow.
+
+So the provenance attestation is telling the truth. It correctly states that these packages were built and published by `release.yml`, running on `refs/heads/main`, in the TanStack repository. All of that genuinely happened. The compromise was upstream of the signing step, in the pipeline that the signature vouches for.
+
+Snyk put the structural problem more cleanly than I can: provenance attests that a package was built by a specific repository's Actions run. It does **not** attest that the workflow was authorized to run, that it executed from a protected branch, or that the commit that triggered it was legitimate. The trust signal worked perfectly. It just happened to be signing an attack.
+
+## The detail that tells you who you're dealing with
+
+There's a flourish in the payload worth dwelling on, because it shows the attackers thought about the _response_, not just the breach.
+
+Once installed, the malware polls your GitHub token every 60 seconds. The moment that token gets revoked - which is exactly what every incident-response playbook tells you to do the instant you suspect compromise - the payload runs `rm -rf ~/`. Your home directory, gone.
+
+The standard remediation is the trigger. That's a deliberate, nasty inversion of defenders' muscle memory, and it tells you this wasn't a smash-and-grab.
+
+## Not an isolated incident
+
+This is the same crew behind a steady escalation. The group is tracked as TeamPCP; this campaign is "Mini Shai-Hulud," a self-spreading worm. Their recent run, roughly: Aqua Security's Trivy scanner and the LiteLLM AI gateway in March 2026, the Bitwarden CLI npm package in April, SAP npm packages later in April, and then TanStack in May. The TanStack wave didn't stop at TanStack either - within about five hours it had self-propagated to over 170 packages across npm _and_ PyPI, hitting names like Mistral AI, UiPath, OpenSearch, and Guardrails AI.
+
+Two things stand out across the timeline. First, every wave is more sophisticated than the last. Second, an awful lot of the targets are AI developer tooling. That's not a coincidence; it's a high-value, fast-growing, often thinly-staffed corner of the ecosystem sitting directly in a lot of critical paths.
+
+## The takeaway isn't "provenance is broken"
+
+It would be easy to read this as "signing is pointless, give up." That's the wrong lesson. Provenance did its job. The problem is that we asked it to answer a question it was never designed to answer.
+
+Provenance is a build-time, identity-layer control. It tells you _where an artifact came from_. That's necessary, and you should absolutely keep doing it. But it is structurally incapable of telling you _what the code does once it's running_ - and in the TanStack case, the things that actually flagged the attack were behavioral, not cryptographic: the malicious tarball was roughly 3.7x larger than normal, it injected a `router_init.js` at the package root, and it phoned home to infrastructure it had no business contacting.
+
+That's the gap. Verifying origin and governing behavior are two different layers, and the last few months have made it uncomfortably clear you need both. Signing tells you the package is "really from TanStack." It cannot tell you that "really from TanStack" is safe, because - as of 11 May - that sentence is no longer true by default.
+
+The mental model that survives this attack is: provenance is layer one, runtime behavioral controls are layer two, and neither one is a substitute for the other. Anyone selling you a single layer as the whole answer is selling you the assumption that just broke.
+
+If you run AI agents rather than just install packages, the same origin-versus-behavior gap reappears one level up - at the point where an agent _acts_ on a tool. I wrote about [the AI agent governance layer that MCP leaves open](https://helio.so/blog/mcp-agent-governance-missing-layer) separately; it's the same lesson applied to what software does at runtime instead of where it came from.
+
+---
+
+_Disclosure: I build [Helio](https://github.com/gethelio/helio), an open-source governance proxy for AI agents, so what software does at runtime is the problem I spend my days on - part of why this attack has had my full attention. I've kept this writeup about the attack rather than the product, because the point holds regardless of who's making it. The primary sources below are worth reading in full._
+
+## Sources
+
+- [Snyk - TanStack npm packages hit by Mini Shai-Hulud](https://snyk.io/blog/tanstack-npm-packages-compromised/)
+- [StepSecurity - Mini Shai-Hulud is back](https://www.stepsecurity.io/blog/mini-shai-hulud-is-back-a-self-spreading-supply-chain-attack-hits-the-npm-ecosystem)
+- [Strobes - TanStack npm supply chain attack: 170 packages compromised](https://strobes.co/blog/tanstack-npm-supply-chain-attack/)
+- TanStack's own postmortem (linked from the above), and the community triage in TanStack/router issue #7383

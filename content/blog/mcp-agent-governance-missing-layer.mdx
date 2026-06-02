@@ -1,0 +1,101 @@
+---
+title: "MCP Agent Governance: The Missing Layer Between Your Agent and Disaster"
+description: "Your MCP agent can call any tool it can reach, and nothing deterministic checks what it does. The AI agent governance layer most teams skip - and how to fill it."
+slug: "mcp-agent-governance-missing-layer"
+date: "2026-06-02"
+author: "Oli Guei"
+authorImg: "/images/oli-guei-profile-image.jpg"
+tags:
+  ["AI agent governance", "MCP", "MCP security", "agent guardrails", "runtime governance"]
+keywords:
+  ["AI agent governance", "MCP governance", "MCP security", "agent guardrails", "MCP agent tool calls", "runtime governance"]
+canonicalUrl: "https://helio.so/blog/mcp-agent-governance-missing-layer"
+ogImage: "/blog/og/mcp-agent-governance.png"
+---
+
+You wire up an MCP server. Maybe it's Stripe, maybe it's your Postgres database, maybe it's a filesystem server you found on GitHub last week. Your agent discovers the tools, reads their schemas, and now it can call them. You test it, it works, it feels a little bit like magic.
+
+Then a quieter question shows up, usually around the time you're about to point it at something that isn't a toy: what actually sits between the model deciding to call `delete_database` and the database being deleted?
+
+For most MCP setups today, the honest answer is: nothing. And I think that gap is worth talking about, because it's not a bug in anyone's code. It's the AI agent governance layer, and the MCP ecosystem hasn't filled it yet.
+
+## MCP solved connection, not control
+
+MCP is genuinely good at what it does. It standardises how an agent finds tools, reads their inputs, and invokes them. The transport story is solid too - OAuth 2.1, scoped tokens, TLS. If you've set it up properly, you've controlled _whether your agent can reach a server_.
+
+But that's an access question, not an action question. Auth decides if the agent gets through the door. It says nothing about what the agent is allowed to do once it's inside the room. And "inside the room" is where all the interesting damage lives.
+
+Consider a support agent with two MCP tools: `stripe.create_refund` and `postgres.query`. Both are legitimately useful. Both are also, in the wrong hands or the wrong hallucination, a very bad afternoon:
+
+- The agent misreads a ticket and issues a £50,000 refund instead of £50.
+- A cleverly worded customer message convinces it to run `DELETE FROM orders` to "clean up the duplicate."
+- It loops on a retry and fires the same payout forty times.
+
+None of these require a malicious user. They're the normal failure modes of pointing a probabilistic system at irreversible actions. The model doesn't need to be jailbroken to do something catastrophic. It just needs to be wrong once, in the wrong place.
+
+## "I put it in the system prompt" is not a control
+
+The instinct is to handle this with prompting. _You must never issue a refund over £500. Always confirm destructive operations._ And that helps, in the way a sign helps. It's a request, not a constraint.
+
+A system prompt is an input to the same probabilistic process you're trying to constrain. It can be overridden by a later instruction, eroded over a long context, defeated by a prompt injection riding in on tool output, or simply ignored because the model weighted something else higher this turn. You cannot build a guardrail out of the same material as the thing you're guarding.
+
+Governance, if the word is going to mean anything, has to be deterministic, and it has to live somewhere the agent can't argue with.
+
+## The control belongs in the path, not in the agent
+
+Here's the framing I keep coming back to: the right place for a control is _in the path between the agent and the tool_, not inside the agent's reasoning.
+
+Think of it like a customs checkpoint. You don't ask travellers to self-assess whether they're carrying anything they shouldn't and trust the answer. You put a checkpoint on the route, and everything crossing the border goes through it whether it wants to or not. The agent can decide whatever it likes; the decision only becomes an _action_ if it survives the checkpoint.
+
+Concretely, that means a process that sits between your MCP client and your MCP servers, sees every tool call before it executes, checks it against rules you wrote, and then allows it, blocks it, or pauses it for a human. The agent doesn't know it's there and can't route around it, because it _is_ the route.
+
+This is the thing I've been building - an open-source MCP governance proxy called [Helio](https://github.com/gethelio/helio). I'll show you what it looks like in practice, but the pattern matters more than the tool, so steal the idea even if you don't use the project.
+
+## What a checkpoint looks like
+
+You describe the rules in a config file. Log everything by default, block the genuinely destructive stuff outright, send the expensive or irreversible stuff to a human, and cap how much the agent can move before someone has to look at it:
+
+```yaml
+# helio.yaml
+default: allow # cautious teams flip this to deny and allowlist
+
+rules:
+  # Destructive SQL is a migration, not an agent decision. Block it.
+  - match:
+      tool: "postgres.query"
+      args:
+        query: "(?i)\\b(drop|truncate|delete)\\b"
+    action: deny
+    reason: "Destructive SQL must go through a reviewed migration"
+
+  # Refunds over £500 pause for a human before they execute.
+  - match:
+      tool: "stripe.create_refund"
+      args:
+        amount: ">50000" # pence
+    action: require_approval
+    channel: slack
+
+  # The agent can't move more than £1,000 in a single session, full stop.
+  - match:
+      tool: "stripe.*"
+    spend_limit:
+      per_session: 100000 # pence
+      currency: gbp
+```
+
+Now when the agent decides to issue that £50,000 refund, the call doesn't reach Stripe. It stops at the checkpoint, a request lands in Slack with the full context of what the agent was trying to do, and a human approves or denies it. The destructive `DELETE` never executes at all. The fortieth retry trips the session spend limit and gets refused. And every single call - allowed, denied, or approved - is written to an audit log, so when someone asks "what did the agent actually do last Tuesday," you have an answer that isn't a vibe.
+
+The important part isn't the YAML. It's that the decision moved out of the model's head and into a place where it's deterministic, inspectable, and impossible to skip.
+
+## This is a layer, and most teams haven't filled it
+
+I'm not claiming this is the only way to do it, or that you need a dedicated tool to get started - a thin proxy you write yourself can do a surprising amount before you reach for anything heavier. What I am claiming is that the layer is real, it's distinct from auth and transport, and right now a lot of agent deployments have a confident-looking architecture with nothing sitting in this slot. It's the same blind spot, one level up, that let validly-signed malicious packages sail through every security check in [the TanStack supply-chain attack](https://helio.so/blog/malicious-npm-packages-valid-slsa-provenance-tanstack): verifying where something came from is not the same as governing what it does.
+
+If you're running MCP agents against anything that costs money, changes state, or can't be undone, it's worth asking the checkpoint question directly: between the model's decision and the irreversible action, what is actually checking?
+
+If the answer is "the system prompt," that's the gap.
+
+---
+
+_Helio is open source (Apache 2.0) and very early - [the repo is here](https://github.com/gethelio/helio) if you want to poke at it, break it, or tell me where the model's wrong. I'd genuinely rather hear the holes now than later._

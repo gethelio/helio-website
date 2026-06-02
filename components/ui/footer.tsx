@@ -123,6 +123,14 @@ export default function Footer({ border = false }: { border?: boolean }) {
               <li>
                 <Link
                   className="text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  href="/blog"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                   href="https://github.com/gethelio/helio/blob/main/docs/getting-started.md"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -27,6 +27,14 @@ export default function Header() {
               </li>
               <li className="px-3 py-1">
                 <Link
+                  href="/blog"
+                  className="flex items-center text-gray-700 transition hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li className="px-3 py-1">
+                <Link
                   href="https://github.com/gethelio/helio/blob/main/docs/getting-started.md"
                   target="_blank"
                   rel="noopener noreferrer"

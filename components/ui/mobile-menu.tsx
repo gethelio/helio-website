@@ -98,6 +98,15 @@ export default function MobileMenu() {
             </li>
             <li>
               <Link
+                href="/blog"
+                className="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                onClick={() => setMobileNavOpen(false)}
+              >
+                Blog
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="https://github.com/gethelio/helio/blob/main/docs/getting-started.md"
                 className="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 onClick={() => setMobileNavOpen(false)}

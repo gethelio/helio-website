@@ -1,42 +1,30 @@
 import fs from "fs";
 import path from "path";
+import matter from "gray-matter";
 
-type Metadata = {
+export type Metadata = {
   title: string;
-  publishedAt: string;
+  description?: string;
+  slug?: string;
+  date?: string;
   updatedAt?: string;
-  summary?: string;
   author?: string;
   authorImg?: string;
+  tags?: string[];
+  keywords?: string[];
+  canonicalUrl?: string;
+  ogImage?: string;
   kind?: string;
 };
 
-function parseFrontmatter(fileContent: string) {
-  const frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
-  const match = frontmatterRegex.exec(fileContent);
-  if (!match) return null;
-  const frontMatterBlock = match[1];
-  const content = fileContent.replace(frontmatterRegex, "").trim();
-  const frontMatterLines = frontMatterBlock.trim().split("\n");
-  const metadata: Partial<Metadata> = {};
-
-  frontMatterLines.forEach((line) => {
-    const [key, ...valueArr] = line.split(": ");
-    let value = valueArr.join(": ").trim();
-    value = value.replace(/^['"](.*)['"]$/, "$1"); // Remove quotes
-    metadata[key.trim() as keyof Metadata] = value;
-  });
-
-  return { metadata: metadata as Metadata, content };
+function readMDXFile(filePath: string) {
+  const rawContent = fs.readFileSync(filePath, "utf-8");
+  const { data, content } = matter(rawContent);
+  return { metadata: data as Metadata, content };
 }
 
 function getMDXFiles(dir: string) {
   return fs.readdirSync(dir).filter((file) => path.extname(file) === ".mdx");
-}
-
-function readMDXFile(filePath: string) {
-  const rawContent = fs.readFileSync(filePath, "utf-8");
-  return parseFrontmatter(rawContent);
 }
 
 function getMDXData(dir: string) {
@@ -45,7 +33,9 @@ function getMDXData(dir: string) {
   return mdxFiles.flatMap((file) => {
     const parsed = readMDXFile(path.join(dir, file));
     if (!parsed) return [];
-    const slug = path.basename(file, path.extname(file));
+    // Prefer the explicit frontmatter slug; fall back to the filename.
+    const slug =
+      parsed.metadata.slug || path.basename(file, path.extname(file));
     return [{ ...parsed, slug }];
   });
 }

@@ -4,8 +4,8 @@ import { getBlogPosts } from "@/components/mdx/utils";
 export default function sitemap(): MetadataRoute.Sitemap {
   const blogPosts = getBlogPosts().map((post) => ({
     url: `https://helio.so/blog/${post.slug}`,
-    lastModified: post.metadata.publishedAt
-      ? new Date(post.metadata.publishedAt)
+    lastModified: post.metadata.date
+      ? new Date(post.metadata.date)
       : new Date(),
     changeFrequency: "monthly" as const,
     priority: 0.6,

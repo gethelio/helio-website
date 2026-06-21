@@ -33,8 +33,8 @@ export default function Hero() {
               data-aos="zoom-y-out"
               data-aos-delay={150}
             >
-              Govern every tool call <br className="max-lg:hidden" />
-              your AI agent makes
+              Let your AI agents run <br className="max-lg:hidden" />
+              unsupervised
             </h1>
             <div className="mx-auto max-w-3xl">
               <p
@@ -42,11 +42,13 @@ export default function Hero() {
                 data-aos="zoom-y-out"
                 data-aos-delay={300}
               >
-                Helio is an open-source MCP governance proxy for Claude,
-                ChatGPT, Cursor, LangChain, CrewAI, and any agent that speaks
-                MCP. Every tool call flows through Helio - policies,
-                approvals, spend limits, audit log.{" "}
-                <strong>No changes to your agent code or MCP servers.</strong>
+                Helio enforces the limits your agent can't bypass — what it can
+                spend, what needs your sign-off and what it can never touch. It
+                runs as a proxy in front of your tools, so there's nothing to
+                skip and no code to change.{" "}
+                <strong>
+                  Open-source, self-hosted and works with any MCP agent.
+                </strong>
               </p>
               <div className="relative before:absolute before:inset-0 before:border-y before:[border-image:linear-gradient(to_right,transparent,--theme(--color-slate-300/.8),transparent)1]">
                 <div

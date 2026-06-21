@@ -6,11 +6,11 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 
-const SITE_TITLE = "Helio - Open-Source MCP Governance for AI Agents";
+const SITE_TITLE = "Helio - Open-Source MCP Governance Your Agent Can't Bypass";
 const SITE_DESCRIPTION =
-  "Open-source MCP proxy that adds policies, approvals, audit trails, and spend limits to Claude, ChatGPT, Cursor, LangChain, CrewAI, and any MCP-compatible agent.";
+  "Open-source MCP proxy that lets your AI agents run unsupervised - spend limits, approvals, and audit trails for Claude, Cursor, and any MCP agent. No code changes.";
 const SOCIAL_DESCRIPTION =
-  "The open-source governance layer for AI agents. Policies, approvals, audit trails, and spend limits for Claude, ChatGPT, Cursor, LangChain, CrewAI - no agent code changes.";
+  "Let your AI agents run unsupervised. Helio is the open-source MCP proxy that caps spend, gates risky actions, and logs every tool call - for Claude, Cursor, LangChain, and any MCP agent. No code changes.";
 
 export const metadata: Metadata = {
   title: SITE_TITLE,
@@ -56,7 +56,7 @@ const organizationJsonLd = JSON.stringify({
   url: "https://helio.so",
   logo: "https://helio.so/favicon.png",
   description:
-    "Open-source MCP governance proxy for AI agents. Policies, approvals, audit trails, and spend limits without touching your agent code.",
+    "Open-source MCP proxy that lets your AI agents run unsupervised. Spend limits, approvals, and audit trails for any MCP agent, without touching your agent code.",
   sameAs: [
     "https://github.com/gethelio/helio",
     "https://x.com/get_helio",

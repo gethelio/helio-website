@@ -147,12 +147,11 @@ export default function About() {
                 Where the project is today
               </h2>
               <p className="mb-8 text-lg text-gray-700 dark:text-gray-300">
-                Helio is in beta. The proxy runs. The dashboard ships with it. A
-                starter ruleset covers the common dangers (drops, refunds,
-                deletes, deploys). We&apos;re adding integrations, sharpening
-                defaults, and writing down lessons from teams already putting
-                agents in production. If you find a bug, file an issue. If you
-                want a rule we don&apos;t have, send a PR.
+                Helio is in beta. The proxy runs, the dashboard ships with it,
+                and v0.10.0 added cumulative cross-tool spend budgets: one
+                depleting pot across every tool that spends, enforced at the
+                gate, with break-glass approvals and a durable spend ledger that
+                survives restarts.
               </p>
               <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center sm:gap-3">
                 <a

@@ -88,14 +88,14 @@ export default function Features() {
                 >
                   <path
                     fillRule="evenodd"
-                    d="M5 2a2 2 0 0 0-1.73 1H1a1 1 0 0 0 0 2h2.27A2 2 0 0 0 5 6a2 2 0 0 0 1.73-1H15a1 1 0 1 0 0-2H6.73A2 2 0 0 0 5 2zm6 8a2 2 0 0 0-1.73 1H1a1 1 0 1 0 0 2h8.27A2 2 0 0 0 11 14a2 2 0 0 0 1.73-1H15a1 1 0 1 0 0-2h-2.27A2 2 0 0 0 11 10z"
+                    d="M1 3h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm.5 1.5v7h13v-7h-13zM8 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"
                   />
                 </svg>
-                <span>Transaction Controls</span>
+                <span>Spend Budgets</span>
               </h3>
               <p className="text-[15px] text-gray-400">
-                Rate limits, spend caps, and budget alerts. Prevent runaway
-                agents from burning through API credits.
+                One depleting pot across every tool that spends. Breach it and
+                the call is denied, or held for human approval.
               </p>
             </article>
             <article>

@@ -4,7 +4,13 @@ import { useState } from "react";
 
 type CellValue =
   | string
-  | { text: string; sub?: string; check?: boolean; x?: boolean }
+  | {
+      text: string;
+      sub?: string;
+      check?: boolean;
+      x?: boolean;
+      partial?: boolean;
+    }
   | true
   | false;
 
@@ -105,15 +111,29 @@ const categories: Category[] = [
       },
       {
         name: "Evidence grounding",
-        values: [{ text: "Cumulative", check: true }, false, false, "Limited"],
+        values: [
+          { text: "Cumulative", check: true },
+          { text: "None", x: true },
+          { text: "None", x: true },
+          { text: "Limited", partial: true },
+        ],
+      },
+      {
+        name: "Cumulative spend control",
+        values: [
+          { text: "Cross-tool budgets", check: true },
+          { text: "Basic", partial: true },
+          { text: "None", x: true },
+          { text: "Limited", partial: true },
+        ],
       },
       {
         name: "Open source",
         values: [
           { text: "Apache 2.0", check: true },
           { text: "Apache 2.0", check: true },
-          false,
-          "Varies",
+          { text: "No", x: true },
+          { text: "Varies", partial: true },
         ],
       },
     ],
@@ -154,6 +174,22 @@ function XMark() {
   );
 }
 
+function Partial() {
+  return (
+    <svg
+      className="h-4 w-4 text-amber-500"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3.5 8h9" />
+    </svg>
+  );
+}
+
 function CellDisplay({ value }: { value: CellValue }) {
   if (value === true) return <Check />;
   if (value === false) return <XMark />;
@@ -165,6 +201,7 @@ function CellDisplay({ value }: { value: CellValue }) {
     <div className="flex items-center gap-1.5">
       {value.check && <Check />}
       {value.x && <XMark />}
+      {value.partial && <Partial />}
       <div>
         <span className="text-sm text-gray-700 dark:text-gray-300">
           {value.text}
@@ -378,6 +415,7 @@ export default function ComparisonTable() {
                             <>
                               {val.check && <Check />}
                               {val.x && <XMark />}
+                              {val.partial && <Partial />}
                               <div className="text-right">
                                 <span className="text-sm text-gray-700 dark:text-gray-300">
                                   {val.text}

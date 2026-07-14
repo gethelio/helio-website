@@ -2,6 +2,7 @@ const HELIO_CAPABILITIES = [
   "Policy engine",
   "Evidence grounding",
   "Approval workflows",
+  "Cross-tool spend budgets",
   "Rate & spend limits",
   "Audit trail",
   "Self-repair feedback",
@@ -267,14 +268,21 @@ export default function HowItWorks() {
               <h3 className="font-medium">Install</h3>
             </div>
             <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-              Scaffold <code className="font-mono text-[13px]">helio.yaml</code>{" "}
-              and a starter ruleset that blocks common dangers.
+              Scaffold <code className="font-mono text-[13px]">helio.yaml</code>
+              . Helio starts in audit-only mode: recording, not blocking.
             </p>
-            <div className="flex flex-1 items-start rounded-lg bg-gray-900 p-4">
-              <code className="font-mono text-sm text-gray-300">
-                <span className="text-gray-500">$</span> npx @gethelio/proxy
-                init
-              </code>
+            <div className="max-h-48 flex-1 overflow-auto rounded-lg bg-gray-900 p-2">
+              <pre className="font-mono text-sm leading-relaxed text-gray-300">
+                <span className="text-gray-500">$</span>{" "}
+                <span className="text-gray-200">npx @gethelio/proxy init</span>
+                {"\n\n"}
+                {"  "}Created helio.yaml{"\n\n"}
+                {"  "}Generated dashboard.api_secret{"\n"}
+                {"    "}
+                <span className="text-blue-400">0a1c45ef&hellip;41f1d5</span>
+                {"\n"}
+                {"    "}(also stored in helio.yaml)
+              </pre>
             </div>
           </div>
 
@@ -287,31 +295,43 @@ export default function HowItWorks() {
               <h3 className="font-medium">Configure</h3>
             </div>
             <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-              Write rules in YAML - what to block, what needs approval, what
-              to rate-limit.
+              Write rules in YAML — what to block, what to rate-limit, what it
+              can spend.
             </p>
-            <div className="flex-1 overflow-x-auto rounded-lg bg-gray-900 p-4">
+            <div className="max-h-48 flex-1 overflow-auto rounded-lg bg-gray-900 p-2">
               <pre className="font-mono text-sm leading-relaxed text-gray-300">
                 <span className="text-gray-500"># helio.yaml</span>
                 {"\n"}
+                <span className="text-gray-200">policies</span>:{"\n"}
+                {"  "}
                 <span className="text-gray-200">rules</span>:{"\n"}
-                {"  "}- <span className="text-gray-200">match</span>:{" "}
-                <span className="text-blue-400">
-                  &quot;tools/payments/*&quot;
-                </span>
+                {"    "}- <span className="text-gray-200">match</span>:{"\n"}
+                {"        "}
+                <span className="text-gray-200">tool</span>:{" "}
+                <span className="text-blue-400">&apos;delete_*&apos;</span>
                 {"\n"}
-                {"    "}
-                <span className="text-gray-200">action</span>:{" "}
-                <span className="text-blue-400">require_approval</span>
-                {"\n"}
-                {"  "}- <span className="text-gray-200">match</span>:{" "}
-                <span className="text-blue-400">
-                  &quot;tools/db/write&quot;
-                </span>
-                {"\n"}
-                {"    "}
+                {"      "}
                 <span className="text-gray-200">action</span>:{" "}
                 <span className="text-blue-400">deny</span>
+                {"\n"}
+                {"    "}- <span className="text-gray-200">match</span>:{"\n"}
+                {"        "}
+                <span className="text-gray-200">tool</span>:{" "}
+                <span className="text-blue-400">&apos;search_*&apos;</span>
+                {"\n"}
+                {"      "}
+                <span className="text-gray-200">action</span>:{" "}
+                <span className="text-blue-400">rate_limit</span>
+                {"\n"}
+                {"      "}
+                <span className="text-gray-200">limits</span>:{"\n"}
+                {"        "}
+                <span className="text-gray-200">max_calls</span>:{" "}
+                <span className="text-blue-400">100</span>
+                {"\n"}
+                {"        "}
+                <span className="text-gray-200">window</span>:{" "}
+                <span className="text-blue-400">1h</span>
               </pre>
             </div>
           </div>
@@ -325,22 +345,39 @@ export default function HowItWorks() {
               <h3 className="font-medium">Run</h3>
             </div>
             <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-              Start the proxy. Your dashboard ships with it - no separate
-              install.
+              Start the proxy. The dashboard ships inside it — there's no
+              separate install.
             </p>
-            <div className="flex-1 overflow-x-auto rounded-lg bg-gray-900 p-4">
+            <div className="max-h-48 flex-1 overflow-auto rounded-lg bg-gray-900 p-2">
               <pre className="font-mono text-sm leading-relaxed text-gray-300">
                 <span className="text-gray-500">$</span>{" "}
                 <span className="text-gray-200">npx @gethelio/proxy start</span>
                 {"\n\n"}
-                <span className="text-emerald-400">&#10003;</span> Proxy live on
-                :3100{"\n"}
-                <span className="text-emerald-400">&#10003;</span> Dashboard at{" "}
-                <span className="text-blue-400">localhost:3100</span>
+                {"  "}Proxy:{" "}
+                <span className="text-blue-400">127.0.0.1:3000</span>
+                {"\n"}
+                {"  "}Policies: 2 rules (allow){"\n"}
+                {"  "}Upstream:{" "}
+                <span className="text-blue-400">localhost:8080/mcp</span>
+                {"\n"}
+                {"    "}(streamable-http){"\n"}
+                {"  "}Dashboard:{" "}
+                <span className="text-blue-400">127.0.0.1:3100</span>
+                {"\n"}
+                {"  "}Approvals: 300s &rarr; deny{"\n"}
+                {"    "}1 channel configured{"\n"}
+                {"  "}Budgets: 1 (agent-payments){"\n"}
+                {"  "}Watching helio.yaml
               </pre>
             </div>
           </div>
         </div>
+
+        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          Helio enforces on the amount a tool call declares. Fixed-cost tools
+          that declare nothing are a rate-limit problem, and spend your provider
+          meters after the fact is out of scope.
+        </p>
 
         {/* Full config block */}
         <div className="mx-auto mt-12 max-w-3xl md:mt-16">
@@ -442,41 +479,62 @@ export default function HowItWorks() {
                 <span className="text-gray-200">key</span>:{" "}
                 <span className="text-blue-400">tool</span>
                 {"\n\n"}
-                {"    "}
+                <span className="text-gray-200">budgets</span>:{"\n"}
+                {"  "}
                 <span className="text-gray-600">
-                  # Spend limit on payment tools
+                  # One depleting pot across every tool that spends
                 </span>
                 {"\n"}
-                {"    "}- <span className="text-gray-200">match</span>:{"\n"}
-                {"        "}
-                <span className="text-gray-200">tool</span>:{" "}
-                <span className="text-blue-400">
-                  &apos;create_payment&apos;
+                {"  "}- <span className="text-gray-200">name</span>:{" "}
+                <span className="text-blue-400">agent-payments</span>
+                {"\n"}
+                {"    "}
+                <span className="text-gray-200">limit</span>:{" "}
+                <span className="text-blue-400">50</span>
+                {"\n"}
+                {"    "}
+                <span className="text-gray-200">currency</span>:{" "}
+                <span className="text-blue-400">USD</span>
+                {"\n"}
+                {"    "}
+                <span className="text-gray-200">window</span>:{" "}
+                <span className="text-blue-400">session</span>{" "}
+                <span className="text-gray-600">
+                  # never replenishes on a timer
                 </span>
                 {"\n"}
-                {"      "}
-                <span className="text-gray-200">action</span>:{" "}
-                <span className="text-blue-400">spend_limit</span>
+                {"    "}
+                <span className="text-gray-200">key</span>:{" "}
+                <span className="text-blue-400">session</span>
                 {"\n"}
+                {"    "}
+                <span className="text-gray-200">on_exceed</span>:{" "}
+                <span className="text-blue-400">require_approval</span>{" "}
+                <span className="text-gray-600">
+                  # a breach raises a break-glass ticket
+                </span>
+                {"\n"}
+                {"    "}
+                <span className="text-gray-200">approval</span>:{"\n"}
                 {"      "}
-                <span className="text-gray-200">limits</span>:{"\n"}
+                <span className="text-gray-200">channel</span>:{" "}
+                <span className="text-blue-400">dashboard</span>
+                {"\n"}
+                {"    "}
+                <span className="text-gray-200">contributors</span>:{"\n"}
+                {"      "}- <span className="text-gray-200">tool</span>:{" "}
+                <span className="text-blue-400">&apos;stripe_*&apos;</span>
+                {"\n"}
                 {"        "}
-                <span className="text-gray-200">max_spend</span>:{"\n"}
-                {"          "}
                 <span className="text-gray-200">field</span>:{" "}
                 <span className="text-blue-400">&apos;$.amount&apos;</span>
                 {"\n"}
-                {"          "}
-                <span className="text-gray-200">limit</span>:{" "}
-                <span className="text-blue-400">5000</span>
+                {"      "}- <span className="text-gray-200">tool</span>:{" "}
+                <span className="text-blue-400">&apos;paypal_*&apos;</span>
                 {"\n"}
-                {"          "}
-                <span className="text-gray-200">currency</span>:{" "}
-                <span className="text-blue-400">&apos;GBP&apos;</span>
-                {"\n"}
-                {"          "}
-                <span className="text-gray-200">window</span>:{" "}
-                <span className="text-blue-400">24h</span>
+                {"        "}
+                <span className="text-gray-200">field</span>:{" "}
+                <span className="text-blue-400">&apos;$.total&apos;</span>
                 {"\n\n"}
                 <span className="text-gray-200">audit</span>:{"\n"}
                 {"  "}

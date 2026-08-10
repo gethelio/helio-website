@@ -36,3 +36,6 @@ yarn-error.log*
 next-env.d.ts
 .gstack/
 .playwright-mcp
+
+# internal working documents, not for publication
+.local/

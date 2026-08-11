@@ -9,7 +9,9 @@ Vercel.
 pnpm dev      # next dev --turbopack
 pnpm build    # production build — run this before claiming a change works
 pnpm start
-pnpm test     # node:test over lib/__tests__ — incident markdown sanitization
+pnpm test     # node:test over lib/__tests__ — sanitization, URL safety,
+              # JSON-LD escaping, commit-pin URL derivation. No framework:
+              # Node's runner with native type stripping, so zero deps.
 pnpm lint     # BROKEN: `next lint` was removed in Next 16, exits 1
 ```
 
@@ -42,8 +44,35 @@ Next.js 16 App Router · React 19 · TypeScript · Tailwind v4
   component** (`components/ui/mobile-menu.tsx`), so nav links must be added in
   both places.
 - `components/theme-provider.tsx` provides light/dark, persisted to
-  localStorage. Most pages are written light-first with `dark:` variants used
-  sparingly — match the surrounding code rather than assuming full dark mode.
+  localStorage, and the footer offers the toggle sitewide. Coverage is uneven:
+  marketing pages and chrome are fully themed, incident pages are fully themed,
+  the blog's prose is themed but its index and cards are not. **Check a new page
+  in both themes before calling it done** — the failure is silent, because
+  explicit `text-gray-900` on a near-black body renders as unreadable rather
+  than as anything obviously broken.
+- Prose blocks need two things, not one: `dark:prose-invert` recolours what the
+  typography plugin owns, but explicit `prose-headings:` / `prose-code:`
+  overrides are plain utilities that beat it and need their own `dark:` twins.
+
+## Next 16 behaviours that cost time here
+
+Each of these was found by measurement, and each fails silently rather than
+loudly:
+
+- **Segment config must be a literal.** `export const revalidate = SOME_CONST`
+  fails the build. Inline the number and reference the constant in a comment.
+- **GET route handlers are no longer cached by default.** A route needs
+  `dynamic = "force-static"` to be prerendered — and exporting *any* non-GET
+  method silently reverts it to dynamic. That is why `app/incidents.json/` has
+  no `OPTIONS` handler.
+- **A fetch's `revalidate` lowers the whole route's.** Next takes the minimum,
+  so a 60s fetch makes every route on the page revalidate every 60s.
+- **`useSearchParams` opts its subtree out of prerendering.** Give the Suspense
+  boundary a fallback that renders the real content, or the static HTML ships
+  empty to crawlers and to anyone without JavaScript.
+- **Metadata merges shallowly.** Naming `openGraph` at all drops the root
+  layout's card, so a page that only wants to change the title must restate the
+  image.
 
 ## Content pipeline
 
@@ -61,14 +90,17 @@ Two patterns worth reusing rather than reinventing:
   `params`, `generateMetadata`, `notFound()`, and a long `prose` class string.
   Copy the `prose` string so typography stays consistent.
 
-## In progress: the Agent Incident Log integration
+## The Agent Incident Log integration
 
-Adding `helio.so/incidents` and `helio.so/incidents/[id]`, rendered from a
-separate public data repo, `gethelio/agent-incident-log`.
+`helio.so/incidents`, `/incidents/[id]` and `/incidents.json`, rendered from a
+separate public data repo, `gethelio/agent-incident-log`. Shipped 11 August
+2026.
 
-**Full implementation plan:**
+The original plan is at
 `.local/docs/helio-incident-log-website-integration-plan-10-08-2026.md`
-(`.local/` is gitignored — internal working documents.)
+(`.local/` is gitignored). It is a **historical record, annotated with
+corrections** — parts of it are wrong, and it does not travel with the repo.
+This file is the source of truth.
 
 The dataset is live and stable, so work can be verified against real data
 immediately with no mocking:
@@ -91,6 +123,25 @@ log itself catalogues.
 Incident prose must go through a plain Markdown pipeline with
 `rehype-sanitize`. See §1.1 of the plan. Existing entries happen to be
 MDX-clean; that is luck, not a control.
+
+### The same threat arrives outside the prose
+
+The sanitizer guards the body. It never sees front matter, and every field there
+is equally contributor-supplied. Two instances were found after the pipeline was
+already in place:
+
+- **URLs into `href`.** `sources[].url`, `sources[].archive_url` and
+  `helio_pack` reach attributes directly. React renders a `javascript:` URL with
+  a console warning rather than blocking it, and the schema's `format: "uri"` is
+  an annotation that `javascript:alert(1)` satisfies. The loader now rejects
+  non-http(s) URLs and `safeExternalUrl` re-checks at render.
+- **Text into `<script type="application/ld+json">`.** A `</script>` in a title
+  closes the tag early and the rest parses as markup. `serializeJsonLd` escapes
+  `<`.
+
+**Before putting any incident field into an attribute, a URL or a script block,
+assume it is hostile.** The threat model in the plan is about prose only, so it
+will not prompt you.
 
 ### Second thing to get right
 
@@ -126,8 +177,10 @@ GitHub commits API, not from `/main/`. raw.githubusercontent caches its *ref
 resolution*: after a push, `/main/` serves the previous commit's blob for up to
 five minutes. Measured against a real publish, sampling every eight seconds —
 `/main/` was stale for the full 109 seconds observed while the commit URL was
-correct from the first sample. No request header changes this, and no polling
-window absorbs it. Do not "simplify" the pinning away.
+correct from the first sample. Note this is a *different* cache from the one
+below: `Cache-Control: no-cache` defeats the byte cache, but ref resolution is
+the origin deciding which blob `main` means, and no header or polling window
+touches it. Do not "simplify" the pinning away.
 
 Two fixes that look right and are not:
 
@@ -136,3 +189,31 @@ Two fixes that look right and are not:
 - Lowering the fetch's `revalidate` drags the **route** revalidate down with it
   (Next takes the minimum), so a 60s fetch means every route revalidates every
   minute and hammers raw.githubusercontent.
+
+### `cache: "no-store"` only governs Next's cache
+
+Three separate bugs here were the same mistake: assuming that opting out of
+Next's cache means the response is fresh. It does not. There are caches between
+Next and the origin, and each needs its own header:
+
+- raw.githubusercontent serves `max-age=300` behind a CDN. Its cache key
+  **ignores the query string**, so a `?t=…` buster is measurably a no-op; a
+  request `Cache-Control: no-cache` does get past it.
+- The GitHub commits API serves `public, max-age=60, s-maxage=60`. Without the
+  same header, the SHA lookup resolved the *previous* commit, which made the
+  validate-before-purge check approve a merge it had never seen.
+
+Every outbound fetch in `lib/incidents.ts` carries `Cache-Control: no-cache` for
+this reason. If you add another, carry it across.
+
+### The log is broader than "an agent did something"
+
+Four of the seven entries — Asana, Flowise, LiteLLM, TanStack — are failures in
+agent *infrastructure* where no agent acted at all. The split is clean across
+`agent_stack`, `surface`, verdict and root cause.
+
+This matters for copy. Anything rendered above an arbitrary entry must not
+assume an agent was involved: "what was reachable", not "what the agent could
+reach". It also matters if the scope is ever questioned again — every `no` and
+`partially` verdict is in that group, so removing it would leave the log
+reporting that action governance prevents 100% of what it catalogues.

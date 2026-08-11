@@ -91,6 +91,46 @@ export default async function SinglePost(props: {
               <div className="prose max-w-none dark:prose-invert text-gray-700 dark:text-gray-300 prose-headings:scroll-mt-24 prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-a:font-medium prose-a:text-blue-500 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-2 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-gray-900 dark:prose-blockquote:text-gray-100 prose-strong:font-medium prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-code:rounded prose-code:bg-transparent prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:border prose-pre:border-gray-700 prose-pre:bg-gray-900 prose-blockquote:xl:-ml-4">
                 <CustomMDX source={post.content} />
               </div>
+
+              {/* Names no incident title and reads no incident data on purpose.
+                  Resolving one would make every post that references the log
+                  fail to build when the log does, and this link is worth
+                  nowhere near that blast radius. */}
+              {post.metadata.incidents?.length ? (
+                <aside className="mt-12 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+                  <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    In the Agent Incident Log
+                  </h2>
+                  {/* Says "what was reachable" rather than "what the agent
+                      could reach": four of the log's seven entries are failures
+                      in agent infrastructure where no agent acted at all, and
+                      this copy renders above all of them. */}
+                  <p className="mt-2 text-gray-700 dark:text-gray-300">
+                    Helio keeps a sourced record of this
+                    {post.metadata.incidents.length > 1
+                      ? " and related incidents"
+                      : " incident"}
+                    , including what was reachable, whether the harm was
+                    reversible, and whether an action-layer control would have
+                    prevented it.
+                  </p>
+                  <ul className="mt-3 space-y-1">
+                    {post.metadata.incidents.map((id) => (
+                      <li key={id}>
+                        <Link
+                          className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                          href={`/incidents/${id}`}
+                        >
+                          Read the entry{" "}
+                          <span className="tracking-normal text-blue-300 dark:text-blue-500">
+                            &rarr;
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+              ) : null}
             </article>
             {/* Newsletter form */}
           </div>

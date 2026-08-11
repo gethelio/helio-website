@@ -6,8 +6,10 @@ import { getIncident, getIncidents } from "@/lib/incidents";
 import { renderIncidentMarkdown } from "@/lib/markdown";
 import { humanizeValue, incidentExcerpt } from "@/lib/incident-format";
 import { incidentReportJsonLd, serializeJsonLd } from "@/lib/incident-jsonld";
+import { getPostsForIncident } from "@/components/mdx/utils";
 import IncidentMeta from "@/components/incidents/incident-meta";
 import SourceList from "@/components/incidents/source-list";
+import PostDate from "@/components/post-date";
 import PageIllustration from "@/components/page-illustration";
 
 // Literal on purpose — Next rejects an imported binding here. See
@@ -78,6 +80,10 @@ export default async function IncidentEntry(props: {
     ? await renderIncidentMarkdown(incident.control)
     : null;
 
+  // Filesystem read, so this adds no dependency on the incident dataset that
+  // this page does not already have.
+  const relatedPosts = getPostsForIncident(incident.id);
+
   return (
     <section className="relative">
       <script
@@ -137,6 +143,38 @@ export default async function IncidentEntry(props: {
                 sources={incident.sources}
                 lastVerified={incident.last_verified}
               />
+
+              {/* Below the sources on purpose. The log's own citations are the
+                  page's provenance; Helio's writing about the same incident is
+                  commentary, and putting it above them would invert that. */}
+              {relatedPosts.length > 0 && (
+                <section className="mt-12 border-t border-gray-200 pt-8 dark:border-gray-800">
+                  <h2 className="mb-5 text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Related reading
+                  </h2>
+                  <ul className="space-y-4">
+                    {relatedPosts.map((post) => (
+                      <li key={post.slug} className="text-sm">
+                        <Link
+                          className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                          href={`/blog/${post.slug}`}
+                        >
+                          {post.title}
+                        </Link>
+                        <div className="mt-0.5 text-gray-500 dark:text-gray-400">
+                          Helio blog
+                          {post.date && (
+                            <>
+                              {" · "}
+                              <PostDate dateString={post.date} />
+                            </>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
             </article>
           </div>
         </div>

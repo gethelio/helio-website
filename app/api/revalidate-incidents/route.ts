@@ -18,14 +18,20 @@ import { INCIDENT_CACHE_TAG, verifyUpstreamDataset } from "@/lib/incidents";
  * `VERCEL_DEPLOY_HOOK_URL` secret. Its workflow POSTs to whatever that holds,
  * so nothing changes on that side.
  *
- *   https://www.helio.so/api/revalidate-incidents?secret=<INCIDENT_REVALIDATE_SECRET>
+ *   https://<canonical-host>/api/revalidate-incidents?secret=<INCIDENT_REVALIDATE_SECRET>
  *
- * **Use the `www` host.** The apex 307s to `www` for every path, and a redirect
- * is silent here in the worst way: `curl` does not follow one unless asked, and
- * it still exits 0. A workflow step doing `curl -X POST "$URL"` against the apex
- * reports success having reached nothing, and the site quietly serves stale
- * entries until the weekly revalidate catches up. Either use the `www` URL or
- * pass `curl -L --fail-with-body`.
+ * **Use whichever host answers without redirecting.** One of `helio.so` and
+ * `www.helio.so` 307s to the other, and which one has changed. Check before
+ * storing the URL:
+ *
+ *   curl -sI https://helio.so/incidents | head -1     # 200 or 307?
+ *
+ * A redirect here fails in the worst way available. `curl` does not follow one
+ * unless asked and does not treat one as an error, so a workflow step posting to
+ * the redirecting host reports success having reached nothing, and the site
+ * serves stale entries until the weekly revalidate catches up a week later.
+ *
+ * Better still, have the caller pass `-L` so the direction stops mattering.
  *
  * The weekly `revalidate` on the routes stays as the self-heal: if this endpoint
  * is never called, entries still refresh within a week.

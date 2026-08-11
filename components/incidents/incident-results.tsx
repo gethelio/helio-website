@@ -21,14 +21,14 @@ export default function IncidentResults({
 
   return (
     <>
-      <p className="mb-6 text-sm text-gray-500">
+      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
         {shown === total
           ? `${total} ${total === 1 ? "entry" : "entries"}`
           : `${shown} of ${total} ${total === 1 ? "entry" : "entries"}`}
       </p>
 
       {shown === 0 ? (
-        <p className="text-gray-700">
+        <p className="text-gray-700 dark:text-gray-300">
           No entries match these filters. Clear one to widen the search.
         </p>
       ) : (

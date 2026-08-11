@@ -71,7 +71,7 @@ export default async function IncidentsIndex() {
         <div className="mx-auto max-w-3xl pb-12 pt-32 md:pb-20 md:pt-40">
           <div className="pb-10">
             <h1 className="mb-4 text-5xl font-bold">Agent Incident Log</h1>
-            <p className="text-lg text-gray-700">
+            <p className="text-lg text-gray-700 dark:text-gray-300">
               Real incidents involving AI agents with access to tools: what
               happened, what the agent could reach, and whether an action-layer
               control would have stopped it. Every entry is sourced, dated and
@@ -83,7 +83,7 @@ export default async function IncidentsIndex() {
               a reader sees, including the entries action governance would not
               have prevented. Burying it below the entries would make the log an
               argument rather than a record. */}
-          <div className="mb-10 rounded-lg border border-gray-200 bg-white p-6">
+          <div className="mb-10 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
             <DistributionCounter distribution={distribution} />
           </div>
 
@@ -105,24 +105,24 @@ export default async function IncidentsIndex() {
           {/* A reference work that can only be read as HTML is one nobody can
               compute over. Plain <a> for the dataset — it is a file, not a
               route, so next/link's prefetching would be wrong. */}
-          <p className="mt-12 border-t border-gray-200 pt-6 text-sm text-gray-500">
+          <p className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-6 text-sm text-gray-500 dark:text-gray-400">
             Every entry is published under{" "}
             <a
-              className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+              className="font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300 hover:underline"
               href="https://creativecommons.org/licenses/by/4.0/"
             >
               CC BY 4.0
             </a>
             . The full dataset is available as{" "}
             <a
-              className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+              className="font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300 hover:underline"
               href="/incidents.json"
             >
               JSON
             </a>
             , and the log is maintained in the open at{" "}
             <a
-              className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+              className="font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300 hover:underline"
               href="https://github.com/gethelio/agent-incident-log"
             >
               gethelio/agent-incident-log

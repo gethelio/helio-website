@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { getDistribution, getIncidents, toIncidentSummary } from "@/lib/incidents";
+import {
+  getDistribution,
+  getFacets,
+  getIncidents,
+  toIncidentSummary,
+} from "@/lib/incidents";
 import DistributionCounter from "@/components/incidents/distribution-counter";
 import IncidentList from "@/components/incidents/incident-list";
+import IncidentResults from "@/components/incidents/incident-results";
 import PageIllustration from "@/components/page-illustration";
 
 // Literal on purpose — Next rejects an imported binding here. See
@@ -34,10 +41,12 @@ export const metadata: Metadata = {
 };
 
 export default async function IncidentsIndex() {
-  const [incidents, distribution] = await Promise.all([
+  const [incidents, distribution, facets] = await Promise.all([
     getIncidents(),
     getDistribution(),
+    getFacets(),
   ]);
+  const summaries = incidents.map(toIncidentSummary);
 
   return (
     <section className="relative">
@@ -62,7 +71,20 @@ export default async function IncidentsIndex() {
             <DistributionCounter distribution={distribution} />
           </div>
 
-          <IncidentList incidents={incidents.map(toIncidentSummary)} />
+          {/* IncidentList reads the query string, which opts its subtree out of
+              static prerendering. The fallback is the full unfiltered list, so
+              every entry still lands in the static HTML — for crawlers, and for
+              anyone whose JavaScript has not arrived or will not run. */}
+          <Suspense
+            fallback={
+              <IncidentResults
+                incidents={summaries}
+                total={summaries.length}
+              />
+            }
+          >
+            <IncidentList incidents={summaries} facets={facets} />
+          </Suspense>
         </div>
       </div>
     </section>

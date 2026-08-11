@@ -15,6 +15,15 @@ export type Metadata = {
   canonicalUrl?: string;
   ogImage?: string;
   kind?: string;
+  /**
+   * Ids of Agent Incident Log entries this post covers.
+   *
+   * Declared here and nowhere else: both directions of the cross-link render
+   * from this one field. Deliberately not stored in the incident data, which is
+   * CC BY and reused elsewhere — a dataset that carries links to Helio's blog
+   * makes everyone who republishes it carry them too.
+   */
+  incidents?: string[];
 };
 
 function readMDXFile(filePath: string) {
@@ -46,4 +55,22 @@ export function getBlogPosts() {
 
 export function getDocPages() {
   return getMDXData(path.join(process.cwd(), "content/docs"));
+}
+
+/**
+ * Blog posts covering a given incident, newest first.
+ *
+ * Reads the filesystem only. An incident page calling this gains no dependency
+ * on the incident dataset it does not already have, so the blast radius of a
+ * bad merge in the data repo stays where it is.
+ */
+export function getPostsForIncident(incidentId: string) {
+  return getBlogPosts()
+    .filter((post) => post.metadata.incidents?.includes(incidentId))
+    .map(({ slug, metadata }) => ({
+      slug,
+      title: metadata.title,
+      date: metadata.date,
+    }))
+    .sort((a, b) => (a.date ?? "") < (b.date ?? "") ? 1 : -1);
 }

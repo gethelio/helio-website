@@ -663,8 +663,23 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Roughly 20 seconds of polling, front-loaded because most pushes land fast. */
-const CONVERGENCE_DELAYS_MS = [0, 1_500, 2_500, 3_000, 4_000, 4_000, 5_000];
+/**
+ * Roughly 50 seconds of polling, front-loaded because some pushes land fast.
+ *
+ * Measured, not guessed. A first attempt at ~20 seconds returned 409 on a real
+ * publish: the push landed at 15:31:10 and raw was still serving the previous
+ * payload 23 seconds later, though it had caught up within 65. An earlier
+ * publish converged inside 24 seconds. So the lag varies by tens of seconds and
+ * a window that only covers the fast case turns most publishes red.
+ *
+ * Bounded by `maxDuration` on the route, which Vercel caps at 60 seconds.
+ * Anything slower than this stays a 409 — loud, retryable, and honest about not
+ * knowing.
+ */
+const CONVERGENCE_DELAYS_MS = [
+  0, 1_500, 2_500, 3_000, 4_000, 4_000, 5_000, 5_000, 5_000, 5_000, 5_000,
+  5_000, 5_000,
+];
 
 export interface ConvergenceResult {
   /** False when the source is not a raw GitHub URL and no check was possible. */

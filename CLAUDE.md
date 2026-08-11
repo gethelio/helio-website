@@ -9,7 +9,8 @@ Vercel.
 pnpm dev      # next dev --turbopack
 pnpm build    # production build — run this before claiming a change works
 pnpm start
-pnpm lint
+pnpm test     # node:test over lib/__tests__ — incident markdown sanitization
+pnpm lint     # BROKEN: `next lint` was removed in Next 16, exits 1
 ```
 
 pnpm is the package manager (10.19). Do not use npm or yarn here.

@@ -32,12 +32,12 @@ export default function IncidentFilters({
   return (
     <div className="mb-10">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-medium text-gray-900">Filter entries</h2>
+        <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">Filter entries</h2>
         {activeCount > 0 && (
           <button
             type="button"
             onClick={onClear}
-            className="cursor-pointer text-sm font-medium text-blue-500 transition-colors hover:text-blue-600"
+            className="cursor-pointer text-sm font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300"
           >
             Clear {activeCount === 1 ? "filter" : "all filters"}
           </button>
@@ -51,7 +51,7 @@ export default function IncidentFilters({
 
           return (
             <label key={dimension.param} className="block">
-              <span className="mb-1 block text-xs font-medium text-gray-500">
+              <span className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
                 {dimension.label}
               </span>
               <select
@@ -59,7 +59,7 @@ export default function IncidentFilters({
                 onChange={(event) =>
                   onChange(dimension.param, event.target.value)
                 }
-                className="w-full cursor-pointer rounded border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-900 transition-colors hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full cursor-pointer rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-1.5 pl-3 pr-8 text-sm text-gray-900 dark:text-gray-100 transition-colors hover:border-gray-400 dark:hover:border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">Any</option>
                 {options.map((option) => (

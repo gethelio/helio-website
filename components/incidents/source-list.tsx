@@ -19,8 +19,8 @@ export default function SourceList({
   lastVerified: string;
 }) {
   return (
-    <section className="mt-12 border-t border-gray-200 pt-8">
-      <h2 className="mb-5 text-lg font-bold text-gray-900">Sources</h2>
+    <section className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8">
+      <h2 className="mb-5 text-lg font-bold text-gray-900 dark:text-gray-100">Sources</h2>
       <ol className="space-y-5">
         {sources.map((source, index) => {
           // Both URLs come from contributor-supplied front matter, which the
@@ -32,31 +32,31 @@ export default function SourceList({
 
           return (
             <li key={source.url} className="flex gap-3 text-sm">
-              <span className="shrink-0 tabular-nums text-gray-400">
+              <span className="shrink-0 tabular-nums text-gray-400 dark:text-gray-500">
                 {index + 1}.
               </span>
               <div>
                 {url ? (
                   <a
-                    className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+                    className="font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300 hover:underline"
                     href={url}
                   >
                     {source.title}
                   </a>
                 ) : (
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
                     {source.title}
                   </span>
                 )}
-                <div className="mt-0.5 text-gray-500">
+                <div className="mt-0.5 text-gray-500 dark:text-gray-400">
                   {source.publisher} · <PostDate dateString={source.date} />
                   {source.primary && (
-                    <span className="ml-2 text-gray-400">Primary source</span>
+                    <span className="ml-2 text-gray-400 dark:text-gray-500">Primary source</span>
                   )}
                 </div>
                 {archiveUrl && (
                   <a
-                    className="mt-0.5 inline-block text-gray-500 underline decoration-gray-300 underline-offset-2 transition-colors hover:text-gray-700"
+                    className="mt-0.5 inline-block text-gray-500 dark:text-gray-400 underline decoration-gray-300 underline-offset-2 transition-colors hover:text-gray-700"
                     href={archiveUrl}
                   >
                     Archived copy
@@ -67,7 +67,7 @@ export default function SourceList({
           );
         })}
       </ol>
-      <p className="mt-6 text-sm text-gray-500">
+      <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
         Sources last verified on <PostDate dateString={lastVerified} />.
       </p>
     </section>

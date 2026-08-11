@@ -9,9 +9,9 @@ import PostDate from "@/components/post-date";
 
 function Row({ term, children }: { term: string; children: ReactNode }) {
   return (
-    <div className="border-t border-gray-200 py-3 sm:grid sm:grid-cols-[13rem_1fr] sm:gap-6">
-      <dt className="text-sm font-medium text-gray-500">{term}</dt>
-      <dd className="mt-1 text-sm text-gray-900 sm:mt-0">{children}</dd>
+    <div className="border-t border-gray-200 dark:border-gray-800 py-3 sm:grid sm:grid-cols-[13rem_1fr] sm:gap-6">
+      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{term}</dt>
+      <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100 sm:mt-0">{children}</dd>
     </div>
   );
 }
@@ -30,7 +30,7 @@ export default function IncidentMeta({ incident }: { incident: Incident }) {
   const stackParts = [stack?.framework, stack?.model].filter(Boolean);
 
   return (
-    <dl className="border-b border-gray-200">
+    <dl className="border-b border-gray-200 dark:border-gray-800">
       <Row term="Organization">{incident.organization}</Row>
       <Row term="Date">
         <PostDate dateString={incident.date} />
@@ -51,7 +51,7 @@ export default function IncidentMeta({ incident }: { incident: Incident }) {
       {typeof incident.aiid_incident === "number" && (
         <Row term="AI Incident Database">
           <a
-            className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+            className="font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300 hover:underline"
             href={`https://incidentdatabase.ai/cite/${incident.aiid_incident}`}
           >
             Incident {incident.aiid_incident}
@@ -63,7 +63,7 @@ export default function IncidentMeta({ incident }: { incident: Incident }) {
            button, no call to action. */
         <Row term="Helio control pack">
           <a
-            className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+            className="font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300 hover:underline"
             href={helioPack}
           >
             {helioPack.replace(/^https?:\/\//, "")}

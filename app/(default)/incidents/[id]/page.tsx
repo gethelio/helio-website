@@ -21,7 +21,7 @@ export const dynamicParams = true;
 // Copied verbatim from app/(default)/blog/[slug]/page.tsx so incident prose and
 // blog prose set identically.
 const PROSE =
-  "prose max-w-none text-gray-700 prose-headings:scroll-mt-24 prose-headings:font-bold prose-headings:text-gray-900 prose-a:font-medium prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-2 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-gray-900 prose-strong:font-medium prose-strong:text-gray-900 prose-code:rounded prose-code:bg-transparent prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-gray-900 prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:border prose-pre:border-gray-700 prose-pre:bg-gray-900 prose-blockquote:xl:-ml-4";
+  "prose max-w-none dark:prose-invert text-gray-700 dark:text-gray-300 prose-headings:scroll-mt-24 prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-a:font-medium prose-a:text-blue-500 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-2 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-gray-900 dark:prose-blockquote:text-gray-100 prose-strong:font-medium prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-code:rounded prose-code:bg-transparent prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:border prose-pre:border-gray-700 prose-pre:bg-gray-900 prose-blockquote:xl:-ml-4";
 
 export async function generateStaticParams() {
   const incidents = await getIncidents();
@@ -94,10 +94,10 @@ export default async function IncidentEntry(props: {
               <header className="pb-8">
                 <div className="mb-6">
                   <Link
-                    className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-600"
+                    className="text-sm font-medium text-blue-500 dark:text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300"
                     href="/incidents"
                   >
-                    <span className="tracking-normal text-blue-300">&larr;</span>{" "}
+                    <span className="tracking-normal text-blue-300 dark:text-blue-500">&larr;</span>{" "}
                     Back to incidents
                   </Link>
                 </div>
@@ -120,11 +120,11 @@ export default async function IncidentEntry(props: {
                   plainly what action governance cannot do — which is why it is
                   set apart, and why nothing here is colour-coded by verdict. */}
               {controlHtml && (
-                <aside className="mt-12 rounded-lg border border-gray-200 bg-white p-6 sm:p-8">
-                  <h2 className="text-sm font-medium text-gray-500">
+                <aside className="mt-12 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 sm:p-8">
+                  <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     Would action governance have prevented this?
                   </h2>
-                  <p className="mt-1 text-2xl font-bold text-gray-900">
+                  <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {humanizeValue(incident.prevented_by_action_governance)}
                   </p>
                   <div className={`${PROSE} mt-4`}>

@@ -18,9 +18,9 @@ export default function DistributionCounter({
   distribution: Distribution;
 }) {
   return (
-    <p className="text-lg text-gray-700">
+    <p className="text-lg text-gray-700 dark:text-gray-300">
       Of{" "}
-      <span className="font-semibold text-gray-900">
+      <span className="font-semibold text-gray-900 dark:text-gray-100">
         {distribution.total} {distribution.total === 1 ? "entry" : "entries"}
       </span>
       , action governance would{" "}
@@ -29,7 +29,7 @@ export default function DistributionCounter({
           {index > 0 && ", "}
           {entry.verdict.replace(/_/g, " ")}
           {index === 0 ? " have prevented " : " "}
-          <span className="font-semibold text-gray-900">{entry.count}</span>
+          <span className="font-semibold text-gray-900 dark:text-gray-100">{entry.count}</span>
         </Fragment>
       ))}
       .

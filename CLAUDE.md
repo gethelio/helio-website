@@ -115,6 +115,10 @@ Instead, the dataset fetch is tagged (`INCIDENT_CACHE_TAG`) and
 that URL, secret included, in place of a deploy hook — no rebuild, and entries
 appear in seconds. The weekly `revalidate` on the routes stays as the self-heal.
 
+That URL must use the **`www`** host. `helio.so` 307s to `www.helio.so` on every
+path, and `curl` neither follows a redirect by default nor treats one as an
+error, so a workflow posting to the apex exits 0 having reached nothing.
+
 Two fixes that look right and are not:
 
 - `cache: "no-store"` turns `/incidents` and `/incidents/[id]` fully dynamic and

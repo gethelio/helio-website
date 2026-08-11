@@ -1,7 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { revalidateTag } from "next/cache";
 
-import { INCIDENT_CACHE_TAG } from "@/lib/incidents";
+import { INCIDENT_CACHE_TAG, verifyUpstreamDataset } from "@/lib/incidents";
 
 /**
  * Purges the cached incident dataset so a merge in `gethelio/agent-incident-log`
@@ -25,6 +25,9 @@ import { INCIDENT_CACHE_TAG } from "@/lib/incidents";
  */
 
 const SECRET_ENV = "INCIDENT_REVALIDATE_SECRET";
+
+/** One year — matches the Expire column the routes already build with. */
+const STALE_WHILE_REVALIDATE_SECONDS = 31_536_000;
 
 /**
  * Compares digests rather than the raw strings, so neither the contents nor the
@@ -79,11 +82,33 @@ export async function POST(request: Request) {
     return json({ revalidated: false, error: "invalid secret" }, 401);
   }
 
-  // Next 16 requires a cache-life profile alongside the tag. `expire: 0` marks
-  // the entry stale immediately, so the next request refetches rather than
-  // serving the old payload for a further grace period — the whole point of
-  // calling this is that the log has just changed.
-  revalidateTag(INCIDENT_CACHE_TAG, { expire: 0 });
+  // Check upstream before purging anything. A malformed merge that gets past
+  // this point takes /incidents, every entry page and /incidents.json to 500 on
+  // the live site, because the loader is designed to throw rather than render a
+  // half-empty log. Failing here instead leaves the last good data in place and
+  // reports the problem to the caller, where someone is watching a workflow.
+  let dataset;
+  try {
+    dataset = await verifyUpstreamDataset();
+  } catch (error) {
+    return json(
+      {
+        revalidated: false,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      422,
+    );
+  }
 
-  return json({ revalidated: true, tag: INCIDENT_CACHE_TAG }, 200);
+  // Next 16 wants a cache-life profile alongside the tag. A long `expire` keeps
+  // stale-while-revalidate behaviour: the cached pages stay servable while the
+  // new ones render, so a failure during regeneration degrades to slightly old
+  // content instead of an error page. `expire: 0` would forbid serving the old
+  // copy at all and make every regeneration failure a 500.
+  revalidateTag(INCIDENT_CACHE_TAG, { expire: STALE_WHILE_REVALIDATE_SECONDS });
+
+  return json(
+    { revalidated: true, tag: INCIDENT_CACHE_TAG, count: dataset.count },
+    200,
+  );
 }

@@ -535,7 +535,7 @@ function validateDataset(parsed: unknown, url: string): IncidentDataset {
 /* Loading                                                                    */
 /* -------------------------------------------------------------------------- */
 
-async function readDataset(url: string): Promise<string> {
+async function readDataset(url: string, fresh: boolean): Promise<string> {
   if (url.startsWith("file://")) {
     // Local development against a checkout. Imported lazily so the module has
     // no top-level Node builtin dependency.
@@ -548,10 +548,14 @@ async function readDataset(url: string): Promise<string> {
 
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
-    next: {
-      revalidate: INCIDENT_REVALIDATE_SECONDS,
-      tags: [INCIDENT_CACHE_TAG],
-    },
+    ...(fresh
+      ? { cache: "no-store" as const }
+      : {
+          next: {
+            revalidate: INCIDENT_REVALIDATE_SECONDS,
+            tags: [INCIDENT_CACHE_TAG],
+          },
+        }),
   });
 
   if (!response.ok) {
@@ -563,14 +567,9 @@ async function readDataset(url: string): Promise<string> {
   return response.text();
 }
 
-/**
- * The full dataset, envelope included. Wrapped in React `cache` so one render
- * pass fetches and validates once; Next's data cache handles reuse across
- * requests and across the pages generated in a single build.
- */
-export const getIncidentDataset = cache(async (): Promise<IncidentDataset> => {
+async function loadDataset(fresh: boolean): Promise<IncidentDataset> {
   const url = incidentDataUrl();
-  const raw = await readDataset(url);
+  const raw = await readDataset(url, fresh);
 
   let parsed: unknown;
   try {
@@ -584,7 +583,32 @@ export const getIncidentDataset = cache(async (): Promise<IncidentDataset> => {
   }
 
   return validateDataset(parsed, url);
+}
+
+/**
+ * The full dataset, envelope included. Wrapped in React `cache` so one render
+ * pass fetches and validates once; Next's data cache handles reuse across
+ * requests and across the pages generated in a single build.
+ */
+export const getIncidentDataset = cache(async (): Promise<IncidentDataset> => {
+  return loadDataset(false);
 });
+
+/**
+ * Fetches and validates upstream while bypassing the cache, throwing on
+ * anything unusable.
+ *
+ * The revalidation endpoint calls this *before* purging the tag. Without that
+ * pre-flight, a malformed merge in the data repo purges the cache, every route
+ * re-renders, the loader throws, and /incidents, every entry page and
+ * /incidents.json all return 500 on the live site — verified, not theorised.
+ *
+ * Checking first moves the failure back to where the plan wanted it: visible at
+ * the source, with the last good data still being served.
+ */
+export async function verifyUpstreamDataset(): Promise<IncidentDataset> {
+  return loadDataset(true);
+}
 
 /** All incidents, newest first. */
 export async function getIncidents(): Promise<Incident[]> {

@@ -7,6 +7,10 @@ import {
   getIncidents,
   toIncidentSummary,
 } from "@/lib/incidents";
+import {
+  incidentDatasetJsonLd,
+  serializeJsonLd,
+} from "@/lib/incident-jsonld";
 import DistributionCounter from "@/components/incidents/distribution-counter";
 import IncidentList from "@/components/incidents/incident-list";
 import IncidentResults from "@/components/incidents/incident-results";
@@ -50,6 +54,18 @@ export default async function IncidentsIndex() {
 
   return (
     <section className="relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(
+            incidentDatasetJsonLd({
+              incidents: summaries,
+              distribution,
+              description: DESCRIPTION,
+            }),
+          ),
+        }}
+      />
       <PageIllustration />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-3xl pb-12 pt-32 md:pb-20 md:pt-40">

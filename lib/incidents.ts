@@ -626,6 +626,98 @@ export async function verifyUpstreamDataset(): Promise<IncidentDataset> {
   return loadDataset(true);
 }
 
+/* -------------------------------------------------------------------------- */
+/* Upstream propagation                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The GitHub contents API URL for a raw.githubusercontent URL, or null when the
+ * source is anything else (a local checkout, a fork, a mirror).
+ */
+export function githubContentsApiUrl(rawUrl: string): string | null {
+  const match = rawUrl.match(
+    /^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/,
+  );
+  if (!match) return null;
+  const [, owner, repo, ref, path] = match;
+  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${ref}`;
+}
+
+async function fetchFresh(url: string, accept: string): Promise<string> {
+  const response = await fetch(url, {
+    headers: {
+      Accept: accept,
+      "Cache-Control": "no-cache",
+      // GitHub's API rejects requests without one.
+      "User-Agent": "helio-website",
+    },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText} from ${url}`);
+  }
+  return response.text();
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Roughly 20 seconds of polling, front-loaded because most pushes land fast. */
+const CONVERGENCE_DELAYS_MS = [0, 1_500, 2_500, 3_000, 4_000, 4_000, 5_000];
+
+export interface ConvergenceResult {
+  /** False when the source is not a raw GitHub URL and no check was possible. */
+  checked: boolean;
+  converged: boolean;
+  attempts: number;
+}
+
+/**
+ * Waits until raw.githubusercontent serves the same bytes the GitHub API does.
+ *
+ * There is a lag between the data repo pushing `dist/incidents.json` and
+ * raw.githubusercontent serving it, and the publish workflow calls us about
+ * three seconds after its push. Purging inside that window is actively harmful:
+ * the routes re-render, read the pre-push payload, and cache it as fresh for a
+ * week. The workflow gets its 200 and the site silently keeps the old data.
+ *
+ * Observed live, twice, with opposite outcomes from identical code — one
+ * publish propagated and the next did not, which is what makes this worth
+ * blocking on rather than hoping about.
+ *
+ * `Cache-Control: no-cache` cannot fix this. It defeats the CDN edge, but the
+ * lag is at the origin, and there is nothing to bypass there. The API is a
+ * different service and reflects a push immediately, so it can act as the
+ * reference for what raw *should* be serving.
+ */
+export async function awaitUpstreamConvergence(): Promise<ConvergenceResult> {
+  const rawUrl = incidentDataUrl();
+  const apiUrl = githubContentsApiUrl(rawUrl);
+
+  // Local checkouts and mirrors have no second source to compare against, and
+  // no CDN in front of them either. Nothing to wait for.
+  if (!apiUrl) return { checked: false, converged: true, attempts: 0 };
+
+  const origin = await fetchFresh(apiUrl, "application/vnd.github.raw");
+
+  for (let attempt = 0; attempt < CONVERGENCE_DELAYS_MS.length; attempt++) {
+    if (CONVERGENCE_DELAYS_MS[attempt] > 0) {
+      await sleep(CONVERGENCE_DELAYS_MS[attempt]);
+    }
+    const served = await fetchFresh(rawUrl, "application/json");
+    if (served === origin) {
+      return { checked: true, converged: true, attempts: attempt + 1 };
+    }
+  }
+
+  return {
+    checked: true,
+    converged: false,
+    attempts: CONVERGENCE_DELAYS_MS.length,
+  };
+}
+
 /** All incidents, newest first. */
 export async function getIncidents(): Promise<Incident[]> {
   const dataset = await getIncidentDataset();

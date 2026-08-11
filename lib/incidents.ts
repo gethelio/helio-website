@@ -584,7 +584,7 @@ async function readDataset(url: string, fresh: boolean): Promise<string> {
 }
 
 async function loadDataset(fresh: boolean): Promise<IncidentDataset> {
-  const url = incidentDataUrl();
+  const url = await resolveDatasetUrl(incidentDataUrl(), fresh);
   const raw = await readDataset(url, fresh);
 
   let parsed: unknown;
@@ -627,110 +627,87 @@ export async function verifyUpstreamDataset(): Promise<IncidentDataset> {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Upstream propagation                                                       */
+/* Commit pinning                                                             */
 /* -------------------------------------------------------------------------- */
 
+const RAW_GITHUB_PATTERN =
+  /^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/;
+
+const SHA_PATTERN = /^[0-9a-f]{40}$/i;
+
 /**
- * The GitHub contents API URL for a raw.githubusercontent URL, or null when the
- * source is anything else (a local checkout, a fork, a mirror).
+ * The commits API URL that resolves this raw URL's ref to a SHA, or null when
+ * there is nothing to resolve: not a raw GitHub URL, or already pinned.
  */
-export function githubContentsApiUrl(rawUrl: string): string | null {
-  const match = rawUrl.match(
-    /^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/,
-  );
+export function githubCommitApiUrl(rawUrl: string): string | null {
+  const match = rawUrl.match(RAW_GITHUB_PATTERN);
   if (!match) return null;
-  const [, owner, repo, ref, path] = match;
-  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${ref}`;
+  const [, owner, repo, ref] = match;
+  if (SHA_PATTERN.test(ref)) return null;
+  return `https://api.github.com/repos/${owner}/${repo}/commits/${ref}`;
 }
 
-async function fetchFresh(url: string, accept: string): Promise<string> {
-  const response = await fetch(url, {
-    headers: {
-      Accept: accept,
-      "Cache-Control": "no-cache",
-      // GitHub's API rejects requests without one.
-      "User-Agent": "helio-website",
-    },
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText} from ${url}`);
-  }
-  return response.text();
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+/** Rewrites a raw URL to point at a specific commit rather than a branch. */
+export function pinRawUrlToSha(rawUrl: string, sha: string): string | null {
+  const match = rawUrl.match(RAW_GITHUB_PATTERN);
+  if (!match || !SHA_PATTERN.test(sha)) return null;
+  const [, owner, repo, , path] = match;
+  return `https://raw.githubusercontent.com/${owner}/${repo}/${sha}/${path}`;
 }
 
 /**
- * Roughly 50 seconds of polling, front-loaded because some pushes land fast.
+ * Resolves a branch URL to a commit-pinned one, so the fetch cannot be served
+ * a payload from before the data repo's last push.
  *
- * Measured, not guessed. A first attempt at ~20 seconds returned 409 on a real
- * publish: the push landed at 15:31:10 and raw was still serving the previous
- * payload 23 seconds later, though it had caught up within 65. An earlier
- * publish converged inside 24 seconds. So the lag varies by tens of seconds and
- * a window that only covers the fast case turns most publishes red.
+ * raw.githubusercontent caches its *ref resolution*, not just its bytes. After
+ * a push, `/main/` keeps serving the previous commit's blob for up to the five
+ * minutes its `max-age` allows, and no request header changes that — the
+ * `Cache-Control: no-cache` added earlier defeats the edge, but this is the
+ * origin deciding which blob `main` means.
  *
- * Bounded by `maxDuration` on the route, which Vercel caps at 60 seconds.
- * Anything slower than this stays a 409 — loud, retryable, and honest about not
- * knowing.
+ * Measured against a real publish, sampling both forms every eight seconds:
+ *
+ *     t+s    raw /main/    raw /<sha>/
+ *     0      stale         FRESH
+ *     …      stale         FRESH
+ *     109    stale         FRESH
+ *
+ * A commit URL is content-addressed, so there is no ref to resolve and no
+ * window in which it can be wrong. That removes the race rather than waiting it
+ * out, which is what the earlier polling attempted — it cannot work against a
+ * five minute cache.
+ *
+ * Falls back to the unpinned URL whenever resolution fails: the API is rate
+ * limited at 60/hour unauthenticated, and degrading to the previous behaviour
+ * beats failing the render.
  */
-const CONVERGENCE_DELAYS_MS = [
-  0, 1_500, 2_500, 3_000, 4_000, 4_000, 5_000, 5_000, 5_000, 5_000, 5_000,
-  5_000, 5_000,
-];
+async function resolveDatasetUrl(url: string, fresh: boolean): Promise<string> {
+  const commitApiUrl = githubCommitApiUrl(url);
+  if (!commitApiUrl) return url;
 
-export interface ConvergenceResult {
-  /** False when the source is not a raw GitHub URL and no check was possible. */
-  checked: boolean;
-  converged: boolean;
-  attempts: number;
-}
-
-/**
- * Waits until raw.githubusercontent serves the same bytes the GitHub API does.
- *
- * There is a lag between the data repo pushing `dist/incidents.json` and
- * raw.githubusercontent serving it, and the publish workflow calls us about
- * three seconds after its push. Purging inside that window is actively harmful:
- * the routes re-render, read the pre-push payload, and cache it as fresh for a
- * week. The workflow gets its 200 and the site silently keeps the old data.
- *
- * Observed live, twice, with opposite outcomes from identical code — one
- * publish propagated and the next did not, which is what makes this worth
- * blocking on rather than hoping about.
- *
- * `Cache-Control: no-cache` cannot fix this. It defeats the CDN edge, but the
- * lag is at the origin, and there is nothing to bypass there. The API is a
- * different service and reflects a push immediately, so it can act as the
- * reference for what raw *should* be serving.
- */
-export async function awaitUpstreamConvergence(): Promise<ConvergenceResult> {
-  const rawUrl = incidentDataUrl();
-  const apiUrl = githubContentsApiUrl(rawUrl);
-
-  // Local checkouts and mirrors have no second source to compare against, and
-  // no CDN in front of them either. Nothing to wait for.
-  if (!apiUrl) return { checked: false, converged: true, attempts: 0 };
-
-  const origin = await fetchFresh(apiUrl, "application/vnd.github.raw");
-
-  for (let attempt = 0; attempt < CONVERGENCE_DELAYS_MS.length; attempt++) {
-    if (CONVERGENCE_DELAYS_MS[attempt] > 0) {
-      await sleep(CONVERGENCE_DELAYS_MS[attempt]);
-    }
-    const served = await fetchFresh(rawUrl, "application/json");
-    if (served === origin) {
-      return { checked: true, converged: true, attempts: attempt + 1 };
-    }
+  try {
+    const response = await fetch(commitApiUrl, {
+      headers: {
+        // Returns the 40-character SHA as plain text rather than the whole
+        // commit object.
+        Accept: "application/vnd.github.sha",
+        // GitHub's API rejects requests without one.
+        "User-Agent": "helio-website",
+      },
+      ...(fresh
+        ? { cache: "no-store" as const }
+        : {
+            next: {
+              revalidate: INCIDENT_REVALIDATE_SECONDS,
+              tags: [INCIDENT_CACHE_TAG],
+            },
+          }),
+    });
+    if (!response.ok) return url;
+    return pinRawUrlToSha(url, (await response.text()).trim()) ?? url;
+  } catch {
+    return url;
   }
-
-  return {
-    checked: true,
-    converged: false,
-    attempts: CONVERGENCE_DELAYS_MS.length,
-  };
 }
 
 /** All incidents, newest first. */

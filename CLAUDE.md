@@ -121,6 +121,14 @@ check with `curl -sI` before storing it. `curl` neither follows a redirect by
 default nor treats one as an error, so a workflow posting to the redirecting
 host exits 0 having reached nothing, and the site stays stale for a week.
 
+The dataset is fetched from a **commit-pinned** raw URL, resolved through the
+GitHub commits API, not from `/main/`. raw.githubusercontent caches its *ref
+resolution*: after a push, `/main/` serves the previous commit's blob for up to
+five minutes. Measured against a real publish, sampling every eight seconds —
+`/main/` was stale for the full 109 seconds observed while the commit URL was
+correct from the first sample. No request header changes this, and no polling
+window absorbs it. Do not "simplify" the pinning away.
+
 Two fixes that look right and are not:
 
 - `cache: "no-store"` turns `/incidents` and `/incidents/[id]` fully dynamic and

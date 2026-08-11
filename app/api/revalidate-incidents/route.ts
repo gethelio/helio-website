@@ -42,11 +42,13 @@ import {
  */
 
 /**
- * The convergence wait below polls for up to about 20 seconds, which is past
+ * The convergence wait below polls for up to about 50 seconds, well past
  * Vercel's 10 second default. Without this the function is killed mid-wait and
  * the caller sees a platform timeout rather than the 409 it should get.
+ *
+ * 60 is the ceiling on the current plan, which is what bounds the poll window.
  */
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 const SECRET_ENV = "INCIDENT_REVALIDATE_SECRET";
 

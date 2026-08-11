@@ -693,6 +693,17 @@ async function resolveDatasetUrl(url: string, fresh: boolean): Promise<string> {
         Accept: "application/vnd.github.sha",
         // GitHub's API rejects requests without one.
         "User-Agent": "helio-website",
+        // The commits endpoint answers with `public, max-age=60, s-maxage=60`,
+        // so a shared cache can hand back the SHA from a minute ago. The
+        // publish workflow calls the revalidation endpoint within a second of
+        // its push, squarely inside that window — observed resolving the
+        // previous commit, which made the validate-before-purge check validate
+        // the previous payload and approve a merge it had not seen.
+        //
+        // `cache: "no-store"` below only governs Next's own cache. This governs
+        // the one in front of GitHub, and is the same header the dataset fetch
+        // already carries for the same reason.
+        "Cache-Control": "no-cache",
       },
       ...(fresh
         ? { cache: "no-store" as const }

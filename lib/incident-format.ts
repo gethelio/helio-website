@@ -32,6 +32,29 @@ const SPECIAL_CASE_WORDS: Record<string, string> = {
   url: "URL",
 };
 
+/**
+ * Returns the URL only if it is safe to put in an `href`, otherwise `undefined`
+ * so the caller can render plain text instead of a link.
+ *
+ * The loader already rejects non-http(s) URLs and fails the build, so in
+ * practice nothing should ever reach this and be turned away. That is the
+ * point: it is the second of two controls, in the same shape as the Markdown
+ * pipeline's, and it is the one that still holds if incident data is ever
+ * rendered from somewhere that skips validation. React is no help here — it
+ * renders `javascript:` hrefs with a console warning rather than blocking them.
+ */
+export function safeExternalUrl(
+  value: string | null | undefined,
+): string | undefined {
+  if (!value) return undefined;
+  try {
+    const { protocol } = new URL(value);
+    return protocol === "http:" || protocol === "https:" ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** `data_exposure` → `Data exposure`; `saas_app` → `SaaS app`. */
 export function humanizeValue(value: string): string {
   const words = value.split("_").filter(Boolean);

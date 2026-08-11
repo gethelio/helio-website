@@ -187,6 +187,21 @@ export interface Incident {
   body: string;
 }
 
+/**
+ * What the index passes across the client boundary.
+ *
+ * Everything the filters and cards need, minus the three large fields they do
+ * not: `body` and `control` are prose, and `sources` is only read on the entry
+ * page. Dropping them keeps roughly 15 KB of Markdown out of the client bundle
+ * at today's entry count, and that gap widens as the log grows.
+ */
+export type IncidentSummary = Omit<Incident, "body" | "control" | "sources">;
+
+export function toIncidentSummary(incident: Incident): IncidentSummary {
+  const { body, control, sources, ...summary } = incident;
+  return summary;
+}
+
 export interface IncidentDataset {
   version: number;
   license: string;
@@ -227,6 +242,40 @@ function requireString(
   if (typeof value !== "string" || value.trim() === "") {
     problems.push(`${label}.${key} is ${describe(value)}, expected a non-empty string`);
   }
+}
+
+/**
+ * URLs in the data become `href` attributes, and `rehype-sanitize` never sees
+ * them — it only guards prose. A contributor-supplied `javascript:` URL would
+ * otherwise reach the DOM, because React renders those with a console warning
+ * rather than blocking them. The schema's `format: "uri"` is no help either:
+ * `javascript:alert(1)` is a perfectly valid URI.
+ */
+function isHttpUrl(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  try {
+    const { protocol } = new URL(value);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function requireHttpUrl(
+  source: Record<string, unknown>,
+  key: string,
+  label: string,
+  problems: string[],
+): void {
+  const value = source[key];
+  if (isHttpUrl(value)) return;
+  // Name the offending value: "is a string" is useless when the string is the
+  // problem, and whoever sees this is debugging a broken deploy.
+  const shown =
+    typeof value === "string"
+      ? JSON.stringify(value.length > 60 ? `${value.slice(0, 60)}…` : value)
+      : describe(value);
+  problems.push(`${label}.${key} is ${shown}, expected an http(s) URL`);
 }
 
 function requireIsoDate(
@@ -290,7 +339,7 @@ function validateSources(
       problems.push(`${entryLabel} is ${describe(entry)}, expected an object`);
       return;
     }
-    requireString(entry, "url", entryLabel, problems);
+    requireHttpUrl(entry, "url", entryLabel, problems);
     requireString(entry, "title", entryLabel, problems);
     requireString(entry, "publisher", entryLabel, problems);
     requireIsoDate(entry, "date", entryLabel, problems);
@@ -300,7 +349,7 @@ function validateSources(
       );
     }
     if (entry.archive_url !== undefined && entry.archive_url !== null) {
-      requireString(entry, "archive_url", entryLabel, problems);
+      requireHttpUrl(entry, "archive_url", entryLabel, problems);
     }
   });
 }
@@ -381,7 +430,7 @@ function validateIncident(
     }
   }
   if (entry.helio_pack !== undefined && entry.helio_pack !== null) {
-    requireString(entry, "helio_pack", label, problems);
+    requireHttpUrl(entry, "helio_pack", label, problems);
   }
 
   validateAgentStack(entry, label, problems);

@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 import type { Incident } from "@/lib/incidents";
-import { humanizeList, humanizeValue } from "@/lib/incident-format";
+import {
+  humanizeList,
+  humanizeValue,
+  safeExternalUrl,
+} from "@/lib/incident-format";
 import PostDate from "@/components/post-date";
 
 function Row({ term, children }: { term: string; children: ReactNode }) {
@@ -20,6 +24,7 @@ function Row({ term, children }: { term: string; children: ReactNode }) {
  */
 export default function IncidentMeta({ incident }: { incident: Incident }) {
   const stack = incident.agent_stack;
+  const helioPack = safeExternalUrl(incident.helio_pack);
   // Both keys are optional even when agent_stack is present: 2 of the 3
   // populated stacks in the log today name a framework and no model.
   const stackParts = [stack?.framework, stack?.model].filter(Boolean);
@@ -53,15 +58,15 @@ export default function IncidentMeta({ incident }: { incident: Incident }) {
           </a>
         </Row>
       )}
-      {incident.helio_pack && (
+      {helioPack && (
         /* Editorial rule 5: this is a field, not a pitch. A plain link — no
            button, no call to action. */
         <Row term="Helio control pack">
           <a
             className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
-            href={incident.helio_pack}
+            href={helioPack}
           >
-            {incident.helio_pack.replace(/^https?:\/\//, "")}
+            {helioPack.replace(/^https?:\/\//, "")}
           </a>
         </Row>
       )}

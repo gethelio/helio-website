@@ -1,7 +1,11 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { revalidateTag } from "next/cache";
 
-import { INCIDENT_CACHE_TAG, verifyUpstreamDataset } from "@/lib/incidents";
+import {
+  awaitUpstreamConvergence,
+  INCIDENT_CACHE_TAG,
+  verifyUpstreamDataset,
+} from "@/lib/incidents";
 
 /**
  * Purges the cached incident dataset so a merge in `gethelio/agent-incident-log`
@@ -36,6 +40,13 @@ import { INCIDENT_CACHE_TAG, verifyUpstreamDataset } from "@/lib/incidents";
  * The weekly `revalidate` on the routes stays as the self-heal: if this endpoint
  * is never called, entries still refresh within a week.
  */
+
+/**
+ * The convergence wait below polls for up to about 20 seconds, which is past
+ * Vercel's 10 second default. Without this the function is killed mid-wait and
+ * the caller sees a platform timeout rather than the 409 it should get.
+ */
+export const maxDuration = 30;
 
 const SECRET_ENV = "INCIDENT_REVALIDATE_SECRET";
 
@@ -95,7 +106,39 @@ export async function POST(request: Request) {
     return json({ revalidated: false, error: "invalid secret" }, 401);
   }
 
-  // Check upstream before purging anything. A malformed merge that gets past
+  // Wait for raw.githubusercontent to actually serve what was just pushed.
+  // Purging before it does re-caches the pre-push payload as fresh for a week,
+  // and the caller gets a 200 for it. Refusing is the loud alternative: the
+  // dataset is already published, so a retry costs a workflow re-run.
+  let convergence;
+  try {
+    convergence = await awaitUpstreamConvergence();
+  } catch (error) {
+    return json(
+      {
+        revalidated: false,
+        error: `could not confirm upstream propagation: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      },
+      502,
+    );
+  }
+
+  if (!convergence.converged) {
+    return json(
+      {
+        revalidated: false,
+        error:
+          "upstream has not propagated yet — raw.githubusercontent is still " +
+          "serving the previous payload. Nothing was purged; re-run to retry.",
+        attempts: convergence.attempts,
+      },
+      409,
+    );
+  }
+
+  // Check the payload before purging anything. A malformed merge that gets past
   // this point takes /incidents, every entry page and /incidents.json to 500 on
   // the live site, because the loader is designed to throw rather than render a
   // half-empty log. Failing here instead leaves the last good data in place and
@@ -121,7 +164,13 @@ export async function POST(request: Request) {
   revalidateTag(INCIDENT_CACHE_TAG, { expire: STALE_WHILE_REVALIDATE_SECONDS });
 
   return json(
-    { revalidated: true, tag: INCIDENT_CACHE_TAG, count: dataset.count },
+    {
+      revalidated: true,
+      tag: INCIDENT_CACHE_TAG,
+      count: dataset.count,
+      generated_at: dataset.generated_at,
+      convergenceChecks: convergence.attempts,
+    },
     200,
   );
 }

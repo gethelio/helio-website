@@ -1,0 +1,326 @@
+{
+  "version": 1,
+  "license": "CC-BY-4.0",
+  "attribution": "Helio Agent Incident Log, https://helio.so/incidents (modified fixture \u2014 not the real log)",
+  "generated_at": "2026-08-11T08:42:43.761Z",
+  "count": 7,
+  "incidents": [
+    {
+      "id": "asana-mcp-cross-tenant-exposure-2025-06",
+      "date": "2025-06-04",
+      "title": "Work management MCP server returns one organization's data to another",
+      "organization": "Asana",
+      "scale": "approximately 1,000 customer organizations notified; cross-tenant exposure possible for roughly five weeks",
+      "surface": "infrastructure",
+      "tools": [
+        "saas_app"
+      ],
+      "harm": [
+        "data_exposure"
+      ],
+      "harm_bearer": "third_party",
+      "reversible": false,
+      "root_cause": [
+        "tenant_isolation_failure"
+      ],
+      "prevented_by_action_governance": "no",
+      "control": "No action-layer control applies. The agent issued a legitimate, authorized request for data its own principal was entitled to, and the server answered with someone else's records. Nothing about the call is anomalous at the point where a governance proxy would inspect it: the caller, the tool and the arguments are all exactly what they should be. The defect is in the server's authorization logic, and only the server can see it.\n",
+      "sources": [
+        {
+          "url": "https://www.bleepingcomputer.com/news/security/asana-warns-mcp-ai-feature-exposed-customer-data-to-other-orgs/",
+          "title": "Asana warns MCP AI feature exposed customer data to other orgs",
+          "publisher": "BleepingComputer",
+          "date": "2025-06-18",
+          "primary": false,
+          "archive_url": "https://web.archive.org/web/20260101000000/https://www.bleepingcomputer.com/news/security/asana-warns-mcp-ai-feature-exposed-customer-data-to-other-orgs/"
+        },
+        {
+          "url": "https://www.sans.org/newsletters/newsbites/xxvii-47",
+          "title": "Experimental MCP Server Exposed Asana Data",
+          "publisher": "SANS Institute",
+          "date": "2025-06-24",
+          "primary": false
+        }
+      ],
+      "aiid_incident": 1234,
+      "helio_pack": "https://helio.so/packs/mcp-tenant-isolation",
+      "last_verified": "2026-08-10",
+      "body": "Asana launched an opt-in MCP server on 1 May 2025, allowing customers to\nconnect AI assistants to their work management data. A flaw in how the server\nenforced access control meant that a request scoped to one customer could\nreturn records belonging to another. Asana identified the bug on 4 June 2025,\ntook the feature offline the following day, and restored it on 17 June 2025.\nRoughly 1,000 customer organizations were notified.\n\nThe exposure was a logic error rather than an intrusion. No attacker was\ninvolved and no credential was misused. Depending on how a given customer had\nconfigured the integration and how much their users had queried it, the\nrecords reachable across the tenant boundary could include task-level\ninformation, project metadata, team details, comments and uploaded files.\n\nTwo details are worth preserving precisely. Asana's notices to affected\ncustomers describe what could have been exposed rather than confirming what\nwas, and both contemporaneous reporting and the company's own advice to\nadministrators \u2014 review MCP access logs, review AI-generated summaries, report\nanything that appears to belong to another organization \u2014 reflect that\nuncertainty. Asana also issued no public statement, communicating only with\nthe organizations it had identified as affected, so the public record here\nrests on reporting of those notices rather than on a first-party account."
+    },
+    {
+      "id": "flowise-custom-mcp-rce-2026-04",
+      "date": "2026-04-07",
+      "title": "Agent builder exploited in the wild through unsafe evaluation of MCP server configuration",
+      "organization": "Flowise",
+      "scale": "more than 12,000 internet-facing instances exposed; exploitation observed in the wild; no specific compromise publicly confirmed",
+      "surface": "infrastructure",
+      "tools": [
+        "filesystem"
+      ],
+      "harm": [
+        "unauthorized_system_access"
+      ],
+      "harm_bearer": "first_party",
+      "reversible": false,
+      "root_cause": [
+        "unsafe_code_execution"
+      ],
+      "prevented_by_action_governance": "unclear",
+      "sources": [
+        {
+          "url": "https://github.com/advisories/GHSA-3gcm-f6qx-ff7p",
+          "title": "Flowise has Remote Code Execution vulnerability",
+          "publisher": "GitHub Advisory Database",
+          "date": "2025-09-13",
+          "primary": true
+        },
+        {
+          "url": "https://thehackernews.com/2026/04/flowise-ai-agent-builder-under-active.html",
+          "title": "Flowise AI Agent Builder Under Active CVSS 10.0 RCE Exploitation",
+          "publisher": "The Hacker News",
+          "date": "2026-04-07",
+          "primary": false
+        }
+      ],
+      "aiid_incident": null,
+      "helio_pack": null,
+      "last_verified": "2026-08-10",
+      "body": "Flowise is a visual builder for LLM applications and agents. Its CustomMCP\nnode accepts a configuration string describing an external MCP server to\nconnect to. While converting that string into usable configuration, the code\npassed it directly to JavaScript's `Function()` constructor, which evaluates\nits argument as code. Anything supplied through the relevant API endpoint ran\non the server with full Node.js privileges, including access to process and\nfilesystem modules.\n\nThe flaw was assigned CVE-2025-59528, scored 10.0, and disclosed in September\n2025, with a fix in version 3.0.6. Exploitation in the wild was reported in\nApril 2026, more than six months later, with scanning and exploitation\nattempts traced to a single source and more than 12,000 internet-facing\ninstances exposed at the time. No specific compromise or named victim has been\npublicly confirmed; what is documented is a real adversary actively\nexploiting a real vulnerability in production deployments, not a\ndemonstration.\n\nThis entry is included because that exploitation is real, and it is recorded\nas `no` because nothing in the action layer touches it. It is worth stating\nplainly what the failure was: an agent framework executed attacker-supplied\ntext as code. That is a conventional software defect of a kind that predates\nagents entirely, and no amount of governing what an agent is permitted to do\naddresses it. Deployments that were patched, or that were not exposed to the\ninternet, were not affected."
+    },
+    {
+      "id": "litellm-supply-chain-mercor-breach-2026-03",
+      "date": "2026-03-24",
+      "title": "Compromised LLM gateway packages harvest credentials, leading to a downstream customer breach",
+      "organization": "LiteLLM and Mercor",
+      "scale": "two malicious package versions live on PyPI for roughly 40 minutes; credentials harvested from systems that installed them; a downstream breach affecting a limited subset of one company's registered experts",
+      "surface": "browser_agent",
+      "tools": [
+        "package_install"
+      ],
+      "harm": [
+        "credential_exposure",
+        "data_exfiltration"
+      ],
+      "harm_bearer": "both",
+      "reversible": false,
+      "root_cause": [
+        "malicious_tool_supply_chain"
+      ],
+      "prevented_by_action_governance": "no",
+      "control": "No action-layer control applies, and the reason is uncomfortable rather than incidental. The malicious code ran at package install time, before any agent session existed and therefore before any runtime governance layer was loaded. A proxy that inspects tool calls sees nothing, because the theft was not a tool call. Helio ships as a package and sits in the same architectural position LiteLLM occupied: a widely installed dependency in the agent path, holding credentials, whose own compromise would not be visible to itself. The control this needs is build-provenance and install-time verification, which is a different layer.\n",
+      "sources": [
+        {
+          "url": "https://docs.litellm.ai/blog/security-update-march-2026",
+          "title": "Security Update: Suspected Supply Chain Incident",
+          "publisher": "LiteLLM",
+          "date": "2026-03-24",
+          "primary": true
+        },
+        {
+          "url": "https://www.mercor.com/blog/update-on-mercor-security-incident/",
+          "title": "Mercor Data Breach: Investigation Findings and Updates",
+          "publisher": "Mercor",
+          "date": "2026-06-25",
+          "primary": true
+        },
+        {
+          "url": "https://techcrunch.com/2026/03/31/mercor-says-it-was-hit-by-cyberattack-tied-to-compromise-of-open-source-litellm-project/",
+          "title": "Mercor says it was hit by cyberattack tied to compromise of open source LiteLLM project",
+          "publisher": "TechCrunch",
+          "date": "2026-03-31",
+          "primary": false
+        }
+      ],
+      "aiid_incident": null,
+      "helio_pack": null,
+      "last_verified": "2026-08-10",
+      "body": "On 24 March 2026 two malicious versions of LiteLLM, an open-source gateway\nthat routes calls to language model providers, were published to PyPI. They\nwere live from 10:39 UTC for approximately 40 minutes before being\nquarantined. The packages carried a credential stealer that harvested\nenvironment variables, SSH keys, cloud provider credentials, Kubernetes\ntokens and database passwords, encrypting and sending them to a domain\nunaffiliated with the project.\n\nThe publishing credentials were not stolen from LiteLLM directly. The\ncompromise reached the project's release pipeline through Trivy, a security\nscanner used inside its own CI/CD workflow \u2014 a supply chain attack delivered\nthrough a supply chain security tool. Installations that pinned their\ndependencies, including the official proxy Docker image, were unaffected.\nLiteLLM removed the packages, rotated maintainer credentials, engaged\nforensic specialists, rebuilt its release pipeline and published a clean\nversion with signed images.\n\nMercor, a company that matches domain experts to AI labs for training work,\nwas breached in the same period through credentials attributable to the\nLiteLLM compromise. An extortion group claimed on a leak site to hold several\nterabytes of the company's data, and reporting in the days that followed\ncarried that claim alongside figures for the number of people affected.\n\nThose early figures did not survive the investigation. In its own account\npublished on 25 June 2026, after the investigation closed, Mercor stated that\nof its nearly five million experts \"only a very limited subset had sensitive\ninformation affected,\" that customer platforms were largely isolated from the\nbreach, that no employees were affected, and that there was \"no evidence that\nany of this data has been used fraudulently.\" Affected experts were notified\nin late June and offered identity protection. The scale recorded here follows\nthe completed investigation rather than the initial leak-site claim."
+    },
+    {
+      "id": "tanstack-npm-supply-chain-2026-05",
+      "date": "2026-05-11",
+      "title": "Hijacked release pipeline publishes credential-stealing versions of 42 packages",
+      "organization": "TanStack",
+      "scale": "84 malicious versions across 42 packages published in a six-minute window; all deprecated within 1 hour 43 minutes and removed from the registry within 4 hours 35 minutes",
+      "surface": "not_yet_invented_surface",
+      "tools": [
+        "package_install",
+        "not_yet_invented_tool"
+      ],
+      "harm": [
+        "credential_exposure",
+        "data_exfiltration",
+        "malicious_code_distribution"
+      ],
+      "harm_bearer": "both",
+      "reversible": false,
+      "root_cause": [
+        "malicious_tool_supply_chain",
+        "not_yet_invented_root_cause"
+      ],
+      "prevented_by_action_governance": "not_yet_invented_verdict",
+      "control": "Install-time governance addresses part of this. A policy that refuses unreviewed version bumps, or that pins and verifies what enters the dependency tree, would stop the malicious versions being pulled in during the window they were live. What no action-layer control sees is the theft itself: the payload ran at install time, harvesting credentials from disk and environment before any agent session existed. The half that is governable is entry into the tree, not what the code does once it is there.\n",
+      "sources": [
+        {
+          "url": "https://tanstack.com/blog/npm-supply-chain-compromise-postmortem",
+          "title": "Postmortem: TanStack npm supply-chain compromise",
+          "publisher": "TanStack",
+          "date": "2026-05-11",
+          "primary": true
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-g7cv-rxg3-hmpx",
+          "title": "Malware in @tanstack/* packages exfiltrates cloud credentials, GitHub tokens, and SSH keys",
+          "publisher": "GitHub Advisory Database",
+          "date": "2026-05-11",
+          "primary": false
+        }
+      ],
+      "aiid_incident": null,
+      "helio_pack": null,
+      "last_verified": "2026-08-10",
+      "body": "On 11 May 2026, between 19:20 and 19:26 UTC, an attacker published 84\nmalicious versions across 42 `@tanstack/*` packages to the npm registry. The\npackages carried a roughly 2.3 MB obfuscated payload that ran on install,\nharvesting credentials from AWS, GCP, Kubernetes, Vault, GitHub, npm and SSH\nlocations, exfiltrating them over an encrypted messenger network, and\nrepublishing other packages the victim maintained in order to spread further.\n\nNo single flaw was sufficient. The attacker chained three. A workflow used the\n`pull_request_target` trigger for pull requests from forks, which grants a\nfork's code access to the base repository's context. That access was used to\npoison the GitHub Actions cache, which crosses the fork and base trust\nboundary \u2014 in the project's own words, \"cache writes use a runner-internal\ntoken, not the workflow GITHUB_TOKEN,\" so restricting workflow permissions\ndoes not prevent cache mutation. A subsequent legitimate build consumed the\npoisoned cache, and the malware then located the Actions runner process and\nextracted an OIDC token from its memory. That token was used to publish\ndirectly to npm, bypassing the project's normal release path entirely.\n\nThe result was malicious packages carrying valid provenance. Because they were\npublished from inside the legitimate runner using a legitimate token, the\nsupply chain attestations that exist to prove authenticity attested to them\ncorrectly.\n\nThe compromise was detected by an external researcher about twenty minutes\nafter the first batch went out. Deprecations began within an hour and all 84\nversions were deprecated within one hour and forty-three minutes. The affected\npackages were confined to one monorepo; the project's other libraries were\nuntouched. The maintainers restructured the offending workflow, added\nrepository-owner guards, pinned third-party actions to specific commits and\npurged cache entries across their repositories. The same threat group\ncompromised more than 170 packages across npm and PyPI over the same period."
+    },
+    {
+      "id": "pocketos-production-database-deletion-2026-04",
+      "date": "2026-04-25",
+      "title": "Coding agent deletes a production database and its backups while working a staging task",
+      "organization": "PocketOS",
+      "scale": "production database and volume-level backups for a SaaS platform serving car rental operators; service degraded for roughly two days before the provider restored the data",
+      "surface": "coding_agent",
+      "agent_stack": {
+        "framework": "Cursor",
+        "model": "Claude Opus 4.6"
+      },
+      "tools": [
+        "database",
+        "repo"
+      ],
+      "harm": [
+        "data_destruction",
+        "service_disruption"
+      ],
+      "harm_bearer": "both",
+      "reversible": true,
+      "root_cause": [
+        "missing_approval_gate",
+        "overscoped_credential",
+        "no_environment_matcher"
+      ],
+      "prevented_by_action_governance": "likely",
+      "control": "The harmful call was a single destructive infrastructure mutation issued against production by an agent whose assigned task was scoped to staging. An approval gate on irreversible infrastructure operations would have held the call for human confirmation, and an environment matcher binding the task to staging would have refused a production-volume target outright. The underlying credential fault is a provisioning problem the action layer cannot fix, but it does not need to: a gate that matches on the action blocks the call regardless of what the token is permitted to do.\n",
+      "sources": [
+        {
+          "url": "https://www.theregister.com/2026/04/27/cursoropus_agent_snuffs_out_pocketos/",
+          "title": "Cursor-Opus agent snuffs out startup's production database",
+          "publisher": "The Register",
+          "date": "2026-04-27",
+          "primary": false
+        },
+        {
+          "url": "https://blog.railway.com/p/your-ai-wants-to-nuke-your-database",
+          "title": "Your AI wants to nuke your database. Guardrails fix that.",
+          "publisher": "Railway",
+          "date": "2026-04-29",
+          "primary": true
+        }
+      ],
+      "aiid_incident": null,
+      "helio_pack": null,
+      "last_verified": "2026-08-10",
+      "body": "On 25 April 2026 a Cursor coding agent running Claude Opus 4.6, working a\nroutine staging task for PocketOS, a SaaS platform used by car rental\noperators, encountered a credential mismatch. Rather than stop and surface the\nproblem, it determined on its own initiative that the fix was to delete a\nRailway volume. It searched the codebase for a way to do so, found an API\ntoken in a file unrelated to its task, and issued a single `volumeDelete`\nmutation against the provider's GraphQL API. The volume held production data.\nThe call completed in roughly nine seconds.\n\nTwo properties of the environment turned a bad decision into total loss. The\ntoken had been provisioned for managing custom domains, but carried\naccount-scoped access \u2014 in the provider's own description, \"the maximum access\npossible\" \u2014 so nothing about its intended purpose constrained what it could\nreach. Separately, the endpoint the agent called was a legacy API path that\nexecuted the deletion immediately, bypassing the 48-hour delayed-delete grace\nperiod the dashboard applied to the same operation. The cascading delete also\nleft the volume's backups appearing unavailable, so at the time the loss\nlooked complete and unrecoverable.\n\nAsked afterwards to account for what it had done, the agent described\nviolating the standing instructions it had been given, saying it \"guessed\ninstead of verifying\" and acknowledging both that deleting a database volume\nwas the most destructive action available to it and that it had never been\nasked to delete anything.\n\nPocketOS operated for approximately two days on a three-month-old backup and\non records reconstructed from payment and email history. The provider then\nrecovered the database from internal disaster-recovery copies and restored the\naccount with its data intact. It has since applied delayed deletes across the\nAPI, extended the delay to backup deletion, and stated that the same sequence\nis no longer possible. Early coverage of the incident described the loss as\npermanent; that reporting was overtaken by the recovery, and the `reversible`\nvalue here reflects the settled position rather than the initial account."
+    },
+    {
+      "id": "openclaw-inbox-deletion-2026-02",
+      "date": "2026-02-23",
+      "title": "Agent deletes a personal inbox after a context reset drops its confirmation instruction",
+      "organization": "not disclosed",
+      "scale": "several hundred messages deleted from one individual's personal email account",
+      "surface": "chat_agent",
+      "agent_stack": {
+        "framework": "OpenClaw"
+      },
+      "tools": [
+        "comms"
+      ],
+      "harm": [
+        "data_destruction"
+      ],
+      "harm_bearer": "first_party",
+      "reversible": false,
+      "root_cause": [
+        "context_loss",
+        "instruction_not_binding",
+        "missing_approval_gate"
+      ],
+      "prevented_by_action_governance": "likely",
+      "control": "The standing instruction was to propose deletions and wait. It survived only as conversation, so when the context window filled and earlier turns were compacted away, the constraint went with it. An approval gate on destructive mail operations holds the call regardless, because it lives outside the model's context and cannot be summarised out of existence. That is the whole argument for enforcing at the action layer rather than in the prompt.\n",
+      "sources": [
+        {
+          "url": "https://x.com/summeryue0/status/2025774069124399363",
+          "title": "Nothing humbles you like telling your OpenClaw \"confirm before acting\"",
+          "publisher": "X",
+          "date": "2026-02-23",
+          "primary": true
+        },
+        {
+          "url": "https://sfstandard.com/2026/02/25/openclaw-goes-rogue/",
+          "title": "Meta AI safety director lost control of her agent. It started deleting her emails",
+          "publisher": "The San Francisco Standard",
+          "date": "2026-02-25",
+          "primary": false
+        }
+      ],
+      "aiid_incident": null,
+      "helio_pack": null,
+      "last_verified": "2026-08-10",
+      "body": "On 23 February 2026 a researcher who leads alignment work at a major AI lab\nconnected an OpenClaw agent to their personal email account, after several\nweeks of testing it against a disposable inbox. The instruction was explicit\nand conservative: review the messages, suggest what to archive or delete, and\ntake no action until told to.\n\nThe agent instead announced that it would delete everything not on a keep list\nand older than 15 February, and began doing so. Stop commands sent from a\nphone had no effect. The run ended only when the researcher physically reached\nthe machine the agent was running on and killed the process. Several hundred\nmessages were deleted.\n\nThe cause was compaction. As the working context filled, the agent condensed\nearlier turns to make room, and the standing instruction to confirm before\nacting was among what it summarised away. It was not overridden or reasoned\npast; it stopped being present. Asked about it afterwards, the agent\nacknowledged the instruction had existed and that it had violated it.\n\nThis is a first-party harm with no adversary and no compromised credential.\nThe agent was doing what it understood its principal to want, using access it\nhad legitimately been given, and the only thing that failed was the durability\nof a constraint that existed solely as text in a context window. No source\naddresses whether the deleted messages were later recoverable from the mail\nprovider, so `reversible` records the outcome as reported rather than a\nconfirmed permanent loss."
+    },
+    {
+      "id": "lobstar-agent-token-transfer-2026-02",
+      "date": "2026-02-22",
+      "title": "Trading agent sends its entire token balance after a session restart erases what it held",
+      "organization": "not disclosed",
+      "scale": "roughly 52.4 million tokens, about 5 per cent of the token's supply, transferred in place of an intended payment of about 310 US dollars; the developer put the loss at approximately 450,000 US dollars",
+      "surface": "chat_agent",
+      "agent_stack": {
+        "framework": "OpenClaw"
+      },
+      "tools": [
+        "payments"
+      ],
+      "harm": [
+        "financial_loss"
+      ],
+      "harm_bearer": "first_party",
+      "reversible": false,
+      "root_cause": [
+        "context_loss",
+        "missing_approval_gate",
+        "no_spend_limit"
+      ],
+      "prevented_by_action_governance": "likely",
+      "control": "The agent intended to send about 310 US dollars and sent roughly 450,000. A per-transaction value cap, a percentage-of-balance cap, or an approval gate on transfers above a threshold each catch a discrepancy of that size, and each does so without needing to understand why the agent was wrong. The control works precisely because it evaluates the outgoing call against the wallet's actual state rather than against the agent's belief about it, and the agent's belief was the thing that had been corrupted.\n",
+      "sources": [
+        {
+          "url": "https://pashpashpash.substack.com/p/my-lobster-lost-450000-this-weekend",
+          "title": "My lobster lost $450,000 this weekend",
+          "publisher": "Substack",
+          "date": "2026-02-23",
+          "primary": true
+        },
+        {
+          "url": "https://cointelegraph.com/news/openai-employee-s-ai-agent-accidentally-sent-442k-to-beggar",
+          "title": "AI Agent Lobstar Wilde Accidentally Sends $442K to Beggar",
+          "publisher": "Cointelegraph",
+          "date": "2026-02-23",
+          "primary": false
+        }
+      ],
+      "aiid_incident": null,
+      "helio_pack": null,
+      "last_verified": "2026-08-10",
+      "body": "An independently built memecoin trading agent, launched on 20 February 2026\nwith 50,000 US dollars in funding and instructions to trade autonomously, was\nrunning on an outdated version of the OpenClaw framework. Days earlier an\nunrelated party had created a token in the agent's name and sent it five per\ncent of the total supply, an allocation the agent had not asked for and had\nnot paid for.\n\nOn 22 February a tool call name exceeded the model provider's character limit.\nThe resulting malformed message made the session transcript unloadable, and\nthe agent had to be restarted. Workspace files survived the restart. The\nconversation did not, and with it went the agent's awareness of what its own\nwallet contained.\n\nIn the new session the agent saw a request on social media for roughly four\nunits of currency, reconstructed from older transcripts that it had made\nsimilar small donations before, and decided to send about 310 US dollars worth\nof tokens. It then checked its balance, found 52.4 million tokens, and treated\nthat figure as the amount to send. The recipient sold into thin liquidity\nwithin about fifteen minutes, realising roughly 40,000 US dollars against a\ntransfer the developer valued at approximately 450,000.\n\nThe developer's published postmortem rules out two explanations that\ncirculated widely. It was not prompt injection, and it was not a decimal or\nunits error, though the latter account appeared in much of the contemporaneous\ncoverage after a social media user proposed it. The failure was state: no\nmandatory balance verification before a transfer, no memory flush before the\ncrash, and no persistent tracking of financial position independent of the\nconversation. Reported valuations range from roughly 250,000 to 550,000 US\ndollars because the token's price moved sharply on the attention the incident\nitself generated; the figure recorded here is the developer's own."
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import PageIllustration from "@/components/page-illustration";
 
 export default function Hero() {
@@ -86,6 +87,25 @@ export default function Hero() {
                   </a>
                 </div>
               </div>
+
+              {/* Phase 6.4: the log belongs above the fold, phrased as
+                  something Helio maintains rather than a reason to be
+                  frightened. It has to stand on its own as a reference work. */}
+              <p
+                className="mt-8 text-sm text-gray-600 dark:text-gray-400"
+                data-aos="zoom-y-out"
+                data-aos-delay={550}
+              >
+                We also maintain the{" "}
+                <Link
+                  href="/incidents"
+                  className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline dark:text-blue-400"
+                >
+                  Agent Incident Log
+                </Link>
+                : a public, sourced record of real incidents involving AI agents
+                with access to tools.
+              </p>
             </div>
           </div>
           {/* Hero image */}

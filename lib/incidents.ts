@@ -38,6 +38,23 @@ import { cache } from "react";
  */
 export const INCIDENT_REVALIDATE_SECONDS = 604_800;
 
+/**
+ * Cache tag for every fetch of the dataset, so the data repo can purge it on
+ * merge via `/api/revalidate-incidents` instead of waiting out the week.
+ *
+ * This is what actually makes new entries appear promptly. A Vercel deploy hook
+ * on its own does not: Next's Data Cache persists across deployments and Vercel
+ * restores `.next/cache` between builds, so a rebuild triggered by a merge
+ * re-serves the payload cached earlier and ships without the new entry — with
+ * the build green and nothing to indicate it. Verified locally: two builds
+ * sharing a cache, upstream changed between them, second build still rendered
+ * the old seven entries.
+ *
+ * Purging this tag invalidates both the cached payload and every route that
+ * rendered from it, including the sitemap and /incidents.json.
+ */
+export const INCIDENT_CACHE_TAG = "incidents";
+
 const DEFAULT_INCIDENT_DATA_URL =
   "https://raw.githubusercontent.com/gethelio/agent-incident-log/main/dist/incidents.json";
 
@@ -531,7 +548,10 @@ async function readDataset(url: string): Promise<string> {
 
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
-    next: { revalidate: INCIDENT_REVALIDATE_SECONDS },
+    next: {
+      revalidate: INCIDENT_REVALIDATE_SECONDS,
+      tags: [INCIDENT_CACHE_TAG],
+    },
   });
 
   if (!response.ok) {

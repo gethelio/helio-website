@@ -98,3 +98,27 @@ The log's schema evolves — it gained two controlled-vocabulary values in a
 single day during drafting. Keep TypeScript unions for its enums **open** to
 unknown strings, and derive filter facets from the data rather than hardcoding
 them, or the site build breaks the next time the log adds a value.
+
+### Sync: a Vercel deploy hook does not work — the plan's §4 is wrong here
+
+The plan wires merges in the data repo to a Vercel deploy hook. That does not
+propagate new entries. Next's Data Cache persists across deployments and Vercel
+restores `.next/cache` between builds, so a rebuild triggered by a merge
+re-serves the payload cached earlier and deploys **without** the new entry, with
+the build green and nothing to indicate it.
+
+Demonstrated locally: two builds sharing a cache with the upstream dataset
+changed between them, second build still rendered the old entries.
+
+Instead, the dataset fetch is tagged (`INCIDENT_CACHE_TAG`) and
+`app/api/revalidate-incidents/route.ts` purges that tag. The data repo POSTs to
+that URL, secret included, in place of a deploy hook — no rebuild, and entries
+appear in seconds. The weekly `revalidate` on the routes stays as the self-heal.
+
+Two fixes that look right and are not:
+
+- `cache: "no-store"` turns `/incidents` and `/incidents/[id]` fully dynamic and
+  loses static generation, exactly as §1.2 of the plan warns.
+- Lowering the fetch's `revalidate` drags the **route** revalidate down with it
+  (Next takes the minimum), so a 60s fetch means every route revalidates every
+  minute and hammers raw.githubusercontent.

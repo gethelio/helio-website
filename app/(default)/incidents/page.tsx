@@ -85,6 +85,34 @@ export default async function IncidentsIndex() {
           >
             <IncidentList incidents={summaries} facets={facets} />
           </Suspense>
+
+          {/* A reference work that can only be read as HTML is one nobody can
+              compute over. Plain <a> for the dataset — it is a file, not a
+              route, so next/link's prefetching would be wrong. */}
+          <p className="mt-12 border-t border-gray-200 pt-6 text-sm text-gray-500">
+            Every entry is published under{" "}
+            <a
+              className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+              href="https://creativecommons.org/licenses/by/4.0/"
+            >
+              CC BY 4.0
+            </a>
+            . The full dataset is available as{" "}
+            <a
+              className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+              href="/incidents.json"
+            >
+              JSON
+            </a>
+            , and the log is maintained in the open at{" "}
+            <a
+              className="font-medium text-blue-500 transition-colors hover:text-blue-600 hover:underline"
+              href="https://github.com/gethelio/agent-incident-log"
+            >
+              gethelio/agent-incident-log
+            </a>
+            .
+          </p>
         </div>
       </div>
     </section>

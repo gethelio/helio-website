@@ -547,7 +547,23 @@ async function readDataset(url: string, fresh: boolean): Promise<string> {
   }
 
   const response = await fetch(url, {
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      // raw.githubusercontent sits behind a CDN with `max-age=300`, and cache
+      // keying ignores the query string — a `?t=…` buster is measurably a
+      // no-op there. A request `Cache-Control: no-cache` does reach past it.
+      //
+      // Without this, two publishes inside five minutes can leave the site a
+      // week stale: the first warms the edge, the second purges our tag, and
+      // the re-render is handed the first payload. Valid, current-looking, and
+      // wrong, with a green workflow behind it.
+      //
+      // This is a request header, not a fetch `cache` option, so it changes
+      // only what the CDN may answer with. Next still caches the response under
+      // INCIDENT_CACHE_TAG with the weekly revalidate, and the routes stay
+      // static — `cache: "no-store"` would be the thing that breaks that.
+      "Cache-Control": "no-cache",
+    },
     ...(fresh
       ? { cache: "no-store" as const }
       : {

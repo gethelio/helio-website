@@ -73,12 +73,22 @@ export function incidentReportJsonLd(incident: Incident) {
     author: PUBLISHER,
     publisher: PUBLISHER,
     keywords: keywordsFor(incident),
-    isPartOf: {
-      "@type": "Dataset",
-      "@id": DATASET_URL,
-      name: "Agent Incident Log",
-      url: DATASET_URL,
-    },
+    /**
+     * A bare node reference, not an inline Dataset.
+     *
+     * Google validates every `Dataset` node it finds, wherever it appears. An
+     * inline stub here — `@type` plus name and url — was reported by the Rich
+     * Results Test as `1 invalid item detected: missing field "description"`,
+     * because it read the reference as a dataset defined on this page rather
+     * than a pointer to one. Dropping `@type` leaves an ordinary IRI reference:
+     * the Dataset stays defined once, canonically, on the index, and the entry
+     * page tests clean.
+     *
+     * Filling in `description` here instead would also validate, but it would
+     * assert that every entry page *is* a dataset, and restate the index's
+     * description on all of them.
+     */
+    isPartOf: { "@id": DATASET_URL },
     citation: incident.sources.map((source) => ({
       "@type": "CreativeWork",
       name: source.title,

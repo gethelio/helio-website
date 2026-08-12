@@ -52,15 +52,16 @@ export async function generateMetadata(props: {
       url,
       publishedTime: incident.date,
       modifiedTime: incident.last_verified,
-      // Next merges metadata shallowly, so naming openGraph at all drops the
-      // root layout's card. Restate it rather than ship a blank preview.
-      images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
+      // No `images` here on purpose. `opengraph-image.tsx` in this folder
+      // generates the per-entry card, and metadata set here would take
+      // precedence over the file convention and suppress it. This previously
+      // restated the site default card, which was correct until that file
+      // existed — deleting it is what switches the cards on.
     },
     twitter: {
       card: "summary_large_image",
       title: incident.title,
       description,
-      images: ["/og-image.jpg"],
     },
   };
 }

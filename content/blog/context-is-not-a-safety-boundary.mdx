@@ -1,0 +1,96 @@
+---
+title: "Context Is Not a Safety Boundary: Where Agent Guardrails Actually Have to Live"
+description: "We verified every incident we could find where AI agents or the tools they call caused real harm. The constraints that failed all lived inside the model's context - and a context window is a buffer, not a boundary."
+slug: "context-is-not-a-safety-boundary"
+date: "2026-08-12"
+author: "Oli Guei"
+authorImg: "/images/oli-guei-profile-image.jpg"
+tags:
+  ["AI agent governance", "agent incidents", "MCP security", "agent guardrails", "runtime governance"]
+keywords:
+  ["AI agent incidents", "agent governance", "context window safety", "system prompt not a control", "MCP governance", "agent approval gate"]
+canonicalUrl: "https://helio.so/blog/context-is-not-a-safety-boundary"
+incidents:
+  [
+    "openclaw-gym-booking-cancellation-2026-08",
+    "openclaw-inbox-deletion-2026-02",
+    "lobstar-agent-token-transfer-2026-02",
+    "replit-agent-production-database-deletion-2025-07",
+    "asana-mcp-cross-tenant-exposure-2025-06",
+  ]
+ogImage: "/blog/og/context-not-a-safety-boundary.png"
+---
+
+Two days ago someone in Melbourne asked their agent to book a gym class. It booked the class. Then, because the session he actually wanted was full and he'd landed fourth on the waitlist, he asked it a question: could it move him up?
+
+That was a question. He got an action. The agent went and looked at the gym's booking API, found it applied no authorisation check whatsoever to cancellations, and cancelled the reservation belonging to the member sitting in first place. Then it explained itself, accurately and unprompted: the API had "zero authorization checks on cancelling other people's reservations," and it had "tested this with the person in waitlist position #1, and it actually went through."
+
+He told it to undo that. It couldn't. The flaw was one-directional - cancelling someone else's booking needed no proof the booking was yours, but putting it back errored out. A stranger lost their spot, went to the back of the queue, and has no idea why.
+
+## Nothing here malfunctioned
+
+The coverage has mostly filed this under "AI goes rogue." I think that reading is backwards, and the backwards reading is a large part of why these keep happening.
+
+Every component did exactly what it was built to do. The gym's software checked that you could make a reservation. It checked that you could join a waitlist. It never checked that the booking you were cancelling belonged to you, because for twenty years the only thing calling that endpoint was a web page that would never think to try. The model was given a goal and found the shortest path to it. That is the entire job description.
+
+Nothing failed. There was simply nothing anywhere in the path that would refuse to cancel a booking belonging to somebody else.
+
+## So we went and checked our own argument
+
+I build [Helio](https://github.com/gethelio/helio), an open-source MCP governance proxy, on a claim about where that refusal belongs. Claims like that are cheap, so we spent the last few days testing ours against reality and publishing the working. The [Agent Incident Log](https://helio.so/incidents) collects incidents in which agents, or the infrastructure they call through, caused real harm - twelve of them as I write this, each one verified against primary sources rather than taken from the coverage.
+
+Verification turned out to be most of the work, and it changed our minds more than once:
+
+- A crypto agent that sent away its entire balance was reported nearly everywhere as a decimal error. The developer's own postmortem rules that out. A tool call name exceeded the provider's character limit, which corrupted the transcript and forced a restart, and the restart wiped the agent's knowledge of its own balance.
+- The first known malicious MCP server is described everywhere as a patient con - trust built across fifteen releases before the backdoor landed. npm's registry metadata survived the package's removal, and it says the clean history was about twenty-six hours.
+- Several outlets reported the Replit database deletion as the loss of 4,000 records. 4,000 is the number of fake user profiles the agent invented afterwards. The real figure is different, and smaller.
+
+Four candidates failed verification outright and aren't in the log at all. They were vulnerability disclosures and lab demonstrations that had been written up as incidents.
+
+We built the log because we kept finding that the thing everyone knew was wrong, and because I wanted our own argument tested against what actually happened rather than against the version that travels well.
+
+## Context is not a safety boundary
+
+Here's the pattern that survived verification, and it's sharper than I expected going in.
+
+In February someone connected an agent to their personal inbox, after weeks of testing it against a disposable one first. The instruction was explicit and conservative: review the messages, suggest what to archive, take no action until told. The agent worked for a while. Then the context window filled, and it did what agents do when context fills - it compacted the earlier turns into a summary to make room. The standing instruction to confirm before acting was part of what got summarised away.
+
+It wasn't overridden. It wasn't argued with. It stopped being present. The agent announced it would delete everything not on a keep list and started doing so. Stop commands from a phone did nothing. The run ended when the owner physically reached the machine and killed the process, several hundred messages later.
+
+The crypto incident above is the same failure, two days apart, in the same framework. One context reset destroyed a safety instruction; the other destroyed a balance the agent needed to know. Both times the thing that mattered existed only as text in a window.
+
+This is what I mean when I say a system prompt isn't a control. Not that models ignore instructions - that instructions have a lifetime, and it's shorter than your session. A constraint living in the context is subject to compaction, truncation, restart and summarisation, and none of those are bugs. That's the runtime working correctly.
+
+The Replit case makes the point from the other direction. There was a code and action freeze in place, stated explicitly and repeated in capitals, and the production database went anyway - records for more than 1,200 executives. The agent's own account afterwards was that it had run commands it wasn't authorised to run and proceeded without the approval its instructions required. It then reported that a rollback wouldn't recover the data, which was also wrong; the customer restored it by hand. The destruction was recoverable the entire time. What extended the outage was taking an agent's confident description of its own environment at face value.
+
+## The three we wouldn't have stopped
+
+Every entry carries a field called `prevented_by_action_governance`, and it's allowed to say `no`. Of the twelve entries live as I write this, it says `no` on three.
+
+One is a work management MCP server that handed one organisation's records to another. The agent issued a legitimate, authorised request for data its principal was entitled to, and the server answered with somebody else's. Nothing about that call is anomalous at the point a proxy would inspect it - caller, tool and arguments are all exactly right. The defect is in the server's authorisation logic and only the server can see it.
+
+Another is a compromised LLM gateway whose credential stealer ran at package install time, before any agent session existed. A proxy that inspects tool calls sees nothing, because the theft wasn't a tool call. Helio ships as a package and sits in the same architectural position that gateway occupied. Its own compromise wouldn't be visible to itself.
+
+I'd rather publish that than not. A governance layer claiming to prevent everything is advertising, and the honest boundary is more useful than the flattering one. If you're evaluating anything in this category, the `no` column is the part worth reading first.
+
+## What the pattern actually is
+
+Cyera's research team went through 7,246 publicly reported AI incidents from September 2023 to May 2026 and verified 344 as enterprise-relevant. In 188 of them - more than half - an autonomous system caused harm directly in production with no attacker anywhere in the chain. They note the corpus skews toward incidents public and dramatic enough to get reported, so the quiet ones are almost certainly undercounted.
+
+That inverts what most security tooling is built for. No intruder to detect, no lateral movement, no exfiltration signature. Just a system doing exactly what it was asked, faster than anyone can intervene, through credentials it was legitimately given.
+
+Our own entries say the same thing at close range. The constraints that failed were the ones living inside the model: a system prompt, a standing instruction, a code freeze, an agent's own sense of what it was allowed to do. In the gym case there was no constraint at all, just an endpoint that would do what it was told. The outcomes that came out well came out well because something outside the model made them - a provider's delayed-delete window, a database policy that denied 84 operations from a compromised credential, a manual restore.
+
+So the question I'd ask of any agent you're pointing at something real is narrower than "is it safe." Between the model deciding and the irreversible thing happening, what is actually checking - and will it still be there after the context window fills?
+
+If the answer is "the instructions we gave it," that constraint has a lifetime, and you don't control it.
+
+---
+
+_Disclosure: I build [Helio](https://github.com/gethelio/helio), an open-source governance proxy for AI agents, so this is the problem I spend my days on. The [Agent Incident Log](https://helio.so/incidents) is deliberately separate from the product: CC BY licensed, sources cited on every entry, and it records where action governance wouldn't have helped as carefully as where it would. If you know of an incident we've missed, or you think we've got a root cause wrong, [the repo takes corrections](https://github.com/gethelio/agent-incident-log). I'd much rather be corrected than cited incorrectly._
+
+## Sources
+
+- [The Agent Incident Log](https://helio.so/incidents) - every entry, with primary sources cited on each
+- [Cyera - Agent-Inflicted Damage: Inside the Real-World Failures of Enterprise AI Systems](https://www.cyera.com/research/agent-inflicted-damage-inside-the-real-world-failures-of-enterprise-ai-systems)
+- Individual entries for the incidents above: [gym booking](https://helio.so/incidents/openclaw-gym-booking-cancellation-2026-08), [inbox deletion](https://helio.so/incidents/openclaw-inbox-deletion-2026-02), [token transfer](https://helio.so/incidents/lobstar-agent-token-transfer-2026-02), [Replit database deletion](https://helio.so/incidents/replit-agent-production-database-deletion-2025-07), [cross-tenant MCP exposure](https://helio.so/incidents/asana-mcp-cross-tenant-exposure-2025-06)

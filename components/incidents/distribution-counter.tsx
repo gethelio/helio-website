@@ -4,9 +4,20 @@ import type { Distribution } from "@/lib/incidents";
 /**
  * The honest counter.
  *
- * Always computed from the data, never written down. The same figures appear in
- * the data repo's hand-maintained README, which is already out of step with its
- * own dataset — that is exactly the failure this component exists to avoid.
+ * Always computed from the data, never written down.
+ *
+ * The same sentence is generated into the data repo's README by its
+ * `scripts/build.mjs`, which was hand-maintained until August 2026 and drifted
+ * from its own dataset more than once before it was automated.
+ *
+ * Those are two independent implementations of one format, in two languages,
+ * in two repositories, with no shared code path — the README is static
+ * markdown upstream, so there is nowhere to put a common formatter. They agree
+ * because both were checked against each other, not because anything enforces
+ * it. **Change the wording or the verdict ordering here and you have silently
+ * desynchronised the log's front page**, and no test on either side will say
+ * so. If you do, change `distributionSentence` and `VERDICT_ORDER` in
+ * `gethelio/agent-incident-log` in the same breath.
  *
  * Every verdict is shown, including any sitting at zero. A category that
  * disappears when empty makes the vocabulary look chosen after the fact, and

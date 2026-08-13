@@ -69,12 +69,10 @@ export const FILTER_DIMENSIONS: FilterDimension[] = [
   {
     param: "reversible",
     label: "Reversible",
-    options: (facets) =>
-      facets.reversible.map((value) => ({
-        value: String(value),
-        label: value ? "Yes" : "No",
-      })),
-    matches: (incident, value) => String(incident.reversible) === value,
+    // `humanized` rather than a Yes/No map: the values are strings now, and
+    // `unclear` has to render as itself rather than collapsing into "No".
+    options: (facets) => humanized(facets.reversible),
+    matches: (incident, value) => incident.reversible === value,
   },
   {
     param: "prevented",

@@ -40,10 +40,14 @@ export default function IncidentMeta({ incident }: { incident: Incident }) {
       {stackParts.length > 0 && (
         <Row term="Agent stack">{stackParts.join(" · ")}</Row>
       )}
-      <Row term="Tools involved">{humanizeList(incident.tools)}</Row>
+      <Row term="Tools involved">
+        {incident.tools.length > 0
+          ? humanizeList(incident.tools)
+          : "None — no agent invoked a tool"}
+      </Row>
       <Row term="Harm">{humanizeList(incident.harm)}</Row>
       <Row term="Who was harmed">{humanizeValue(incident.harm_bearer)}</Row>
-      <Row term="Reversible">{incident.reversible ? "Yes" : "No"}</Row>
+      <Row term="Reversible">{humanizeValue(incident.reversible)}</Row>
       <Row term="Root cause">{humanizeList(incident.root_cause)}</Row>
       <Row term="Prevented by action governance">
         {humanizeValue(incident.prevented_by_action_governance)}

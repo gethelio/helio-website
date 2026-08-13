@@ -19,9 +19,15 @@ import { INCIDENT_CACHE_TAG, verifyUpstreamDataset } from "@/lib/incidents";
  * so nothing changes on that side.
  *
  * That secret was called `VERCEL_DEPLOY_HOOK_URL` until August 2026, which
- * named the very approach described below as not working, and sent anyone
- * reading it to look for a hook in the Vercel dashboard. The workflow still
- * falls back to the old name until it is deleted.
+ * named the very approach described above as not working, and sent anyone
+ * reading it to look for a hook in the Vercel dashboard. It is gone.
+ *
+ * Note that `INCIDENT_REVALIDATE_SECRET` is stored `Encrypted` here and the
+ * data repo's copy is a write-only GitHub secret, so the value cannot be read
+ * back from either side. Changing it is a rotation, not an edit: set a new one
+ * in Preview and Production, **redeploy** — an env change does not reach a
+ * deployment that has already baked the old value — then update the data
+ * repo's `INCIDENT_REVALIDATE_URL` to match.
  *
  *   https://<canonical-host>/api/revalidate-incidents?secret=<INCIDENT_REVALIDATE_SECRET>
  *

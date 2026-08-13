@@ -15,8 +15,13 @@ import { INCIDENT_CACHE_TAG, verifyUpstreamDataset } from "@/lib/incidents";
  * working around it, and skips the rebuild entirely.
  *
  * Wiring: put this URL, secret included, in the data repo's
- * `VERCEL_DEPLOY_HOOK_URL` secret. Its workflow POSTs to whatever that holds,
+ * `INCIDENT_REVALIDATE_URL` secret. Its workflow POSTs to whatever that holds,
  * so nothing changes on that side.
+ *
+ * That secret was called `VERCEL_DEPLOY_HOOK_URL` until August 2026, which
+ * named the very approach described below as not working, and sent anyone
+ * reading it to look for a hook in the Vercel dashboard. The workflow still
+ * falls back to the old name until it is deleted.
  *
  *   https://<canonical-host>/api/revalidate-incidents?secret=<INCIDENT_REVALIDATE_SECRET>
  *

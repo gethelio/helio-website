@@ -131,6 +131,26 @@ export type PreventionVerdict = OpenEnum<
 >;
 
 /**
+ * Whether the harm could be undone.
+ *
+ * A string rather than a boolean, because the log needs to say "nobody knows"
+ * — the inbox-deletion entry has no source addressing whether the mail was
+ * recoverable, and recording that as `false` asserts something no one checked.
+ * `harm_bearer` and `prevented_by_action_governance` already carry `unclear`
+ * for the same reason.
+ *
+ * The upstream field was a boolean until August 2026 and `normalizeReversible`
+ * still accepts one, so an older payload keeps working. That matters because
+ * this site and the data repo deploy separately: whichever ships first, the
+ * other must not break.
+ *
+ * Deliberately not `boolean | string`. `"unclear"` is truthy, so every
+ * `incident.reversible ? "Yes" : "No"` in the codebase would have silently
+ * rendered an unknown as a confident Yes.
+ */
+export type Reversible = OpenEnum<"yes" | "no" | "unclear">;
+
+/**
  * Canonical display order for the distribution counter. Any verdict the log
  * adds later is appended after these rather than dropped — see
  * `getDistribution`.
@@ -176,7 +196,7 @@ export interface Incident {
   tools: Tool[];
   harm: Harm[];
   harm_bearer: HarmBearer;
-  reversible: boolean;
+  reversible: Reversible;
   root_cause: RootCause[];
   prevented_by_action_governance: PreventionVerdict;
   /**
@@ -309,18 +329,34 @@ function requireIsoDate(
   }
 }
 
+/**
+ * Accepts either shape of `reversible` and returns the canonical string.
+ *
+ * `true`/`false` are the pre-August-2026 encoding and map to `yes`/`no`.
+ * Unrecognised strings pass through, matching how every other controlled
+ * vocabulary here stays open to values the log adds later.
+ *
+ * Returns `undefined` for anything unusable, which the caller reports.
+ */
+function normalizeReversible(value: unknown): string | undefined {
+  if (typeof value === "boolean") return value ? "yes" : "no";
+  if (typeof value === "string" && value.trim() !== "") return value;
+  return undefined;
+}
+
 function requireStringArray(
   source: Record<string, unknown>,
   key: string,
   label: string,
   problems: string[],
+  { allowEmpty = false }: { allowEmpty?: boolean } = {},
 ): void {
   const value = source[key];
   if (!Array.isArray(value)) {
     problems.push(`${label}.${key} is ${describe(value)}, expected an array`);
     return;
   }
-  if (value.length === 0) {
+  if (value.length === 0 && !allowEmpty) {
     problems.push(`${label}.${key} is empty, expected at least one value`);
     return;
   }
@@ -425,14 +461,25 @@ function validateIncident(
   requireString(entry, "prevented_by_action_governance", label, problems);
   requireString(entry, "body", label, problems);
 
-  requireStringArray(entry, "tools", label, problems);
+  // Empty is legitimate: on an `infrastructure` entry no agent invokes
+  // anything, and the upstream schema stopped demanding a value there in
+  // August 2026. Whether it is *allowed* to be empty is the log's rule to
+  // enforce, not this site's — duplicating the condition here would just mean
+  // a build failure the next time upstream refines it.
+  requireStringArray(entry, "tools", label, problems, { allowEmpty: true });
   requireStringArray(entry, "harm", label, problems);
   requireStringArray(entry, "root_cause", label, problems);
 
-  if (typeof entry.reversible !== "boolean") {
+  const reversible = normalizeReversible(entry.reversible);
+  if (reversible === undefined) {
     problems.push(
-      `${label}.reversible is ${describe(entry.reversible)}, expected a boolean`,
+      `${label}.reversible is ${describe(entry.reversible)}, expected a non-empty string or a boolean`,
     );
+  } else {
+    // Written back so everything downstream sees one shape. The alternative is
+    // a `boolean | string` union leaking into every consumer, which is how the
+    // truthiness bug described on `Reversible` gets in.
+    entry.reversible = reversible;
   }
 
   // Conditionally required upstream; here it only has to be sane when present.
@@ -789,10 +836,18 @@ export interface Facets {
   prevented_by_action_governance: string[];
   /** From `agent_stack.framework`; absent on most entries. */
   framework: string[];
-  reversible: boolean[];
+  /** `yes` / `no` / `unclear`, in that order rather than alphabetical. */
+  reversible: string[];
   /** Newest first. */
   year: string[];
 }
+
+/**
+ * Canonical order for the reversible facet. Anything the log adds later sorts
+ * after these rather than disappearing, same contract as
+ * `KNOWN_PREVENTION_VERDICTS`.
+ */
+const KNOWN_REVERSIBLE_VALUES = ["yes", "no", "unclear"] as const;
 
 function sortedUnique(values: string[]): string[] {
   return Array.from(new Set(values)).sort();
@@ -813,7 +868,14 @@ export async function getFacets(): Promise<Facets> {
 
   const reversible = Array.from(
     new Set(incidents.map((incident) => incident.reversible)),
-  ).sort((a, b) => Number(b) - Number(a));
+  ).sort((a, b) => {
+    const ai = KNOWN_REVERSIBLE_VALUES.indexOf(a as never);
+    const bi = KNOWN_REVERSIBLE_VALUES.indexOf(b as never);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return a.localeCompare(b);
+  });
 
   return {
     surface: sortedUnique(incidents.map((incident) => incident.surface)),

@@ -1,0 +1,125 @@
+---
+const faqs = [
+    {
+        id: 'faq-1',
+        question: 'Will this break our agents the day we install it?',
+        paragraphs: ['No. The generated config starts with no active policy rules, so calls keep flowing while Helio records them.', 'Review that traffic, then add the rules you want. You decide when Helio starts blocking anything.'],
+    },
+    {
+        id: 'faq-2',
+        question: 'Do we have to rewrite our agents or MCP servers?',
+        paragraphs: ['No. Change your MCP client configuration so it connects to Helio, and point Helio at your existing server.', 'There is an optional thin Python SDK for richer evidence and dependency data. The proxy itself needs no changes to your agent or MCP server code.'],
+    },
+    {
+        id: 'faq-3',
+        question: "Can't the model just ignore the policy, like it ignores the prompt?",
+        paragraphs: ['A prompt is an instruction to the model. Helio evaluates the actual tool call before forwarding it.', 'For tool access routed through Helio, a denied call never reaches the upstream server. Keep Helio on the only network path to make that enforcement structural.'],
+    },
+    {
+        id: 'faq-4',
+        question: 'What if an MCP server changes a tool after we reviewed it?',
+        paragraphs: ['Helio keeps the tool definition you reviewed. If the server changes its description or input schema, Helio can block the tool, ask for approval, or log the change.', 'The default is to block until you review it, so a tool cannot quietly gain a destructive argument overnight.'],
+    },
+    {
+        id: 'faq-5',
+        question: 'Can one spend limit cover Stripe, PayPal, and every other tool that charges?',
+        paragraphs: ['Yes. Each matching tool draws from the same budget, even when the amount lives in a different input field.', 'The ledger survives restarts. When the pot runs out, Helio can deny the call or send the overage to a human for approval.'],
+    },
+    {
+        id: 'faq-6',
+        question: 'What stops an agent from trying another tool while a call is held?',
+        paragraphs: ['The held call cannot continue until a human approves it. Any other MCP call routed through Helio is evaluated against its own rules.', 'To prevent a true bypass, route every relevant tool path through Helio and control direct network access to the upstream servers.'],
+    },
+    {
+        id: 'faq-7',
+        question: 'Does our tool traffic have to leave our network?',
+        paragraphs: ['No. The open-source proxy and bundled dashboard run in your environment, and your tool traffic does not need to pass through a Helio cloud.', 'Teams can bring in the maintainers for policy design, a written control assessment, deployment review, and production support.'],
+    },
+    {
+        id: 'faq-8',
+        question: 'Is this just an API gateway with extra steps?',
+        paragraphs: ['A general API gateway can inspect HTTP. Helio understands MCP tool calls, their input schemas, and the state that carries across calls.', 'That is how it can require an order lookup before a $2,400 refund, share one budget across payment tools, or block a tool whose definition changed.'],
+    },
+]
+
+const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    inLanguage: 'en',
+    mainEntity: faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.paragraphs.join(' '),
+        },
+    })),
+}
+---
+
+<section id="faq" class="my-12 scroll-my-32 md:my-20 lg:my-32">
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <div class="mx-auto max-w-6xl px-3">
+        <div class="grid gap-y-12 px-2 sm:px-12 md:gap-x-12 md:[grid-template-columns:1fr_auto]">
+            <div>
+                <h2 class="text-title mb-4 text-3xl font-semibold md:text-4xl">Frequently <br />Asked <br />Questions</h2>
+                <p>What security and platform teams ask before they put Helio in the path.</p>
+            </div>
+
+            <div class="-mx-1 space-y-12 md:max-w-xl lg:mx-0">
+                <div>
+                    <div class="divide-y border-y">
+                        {
+                            faqs.map((faq) => (
+                                <div class="faq-item">
+                                    <button class="collapse-trigger text-title flex w-full items-start justify-between px-1 py-4 text-left" aria-controls={faq.id} data-active="false">
+                                        <span class="font-medium">{faq.question}</span>
+                                        <svg class="collapse-icon arrow-down size-4 rotate-0 transform duration-300" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m20 9-8 8-8-8" />
+                                        </svg>
+                                    </button>
+                                    <div class="collapse-content faq-answer max-h-0 overflow-hidden px-1 duration-300 ease-in-out" id={faq.id}>
+                                        {faq.paragraphs.map((paragraph, index) => (index === 0 ? <p class="text-body my-4">{paragraph}</p> : <p class="text-body mb-4">{paragraph}</p>))}
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll<HTMLElement>('.collapse-trigger').forEach((button) => {
+            button.addEventListener('click', function (this: HTMLElement) {
+                const content = this.nextElementSibling as HTMLElement | null
+                const icon = this.querySelector('.collapse-icon') as HTMLElement | null
+
+                if (!content || !icon) return
+
+                // Close all other open items
+                document.querySelectorAll<HTMLElement>('.collapse-trigger').forEach((btn) => {
+                    const contentToClose = btn.nextElementSibling as HTMLElement | null
+                    const iconToRotate = btn.querySelector('.collapse-icon') as HTMLElement | null
+
+                    if (!contentToClose || !iconToRotate) return
+
+                    if (btn !== this) {
+                        btn.setAttribute('data-active', 'false')
+                        contentToClose.style.maxHeight = '0'
+                        iconToRotate.classList.remove('rotate-180')
+                    }
+                })
+
+                // Toggle active state for the clicked item
+                const isActive = this.getAttribute('data-active') === 'true'
+                this.setAttribute('data-active', (!isActive).toString())
+
+                // Animate arrow and toggle visibility for the clicked item
+                icon.classList.toggle('rotate-180')
+                content.style.maxHeight = isActive ? '0' : `${content.scrollHeight}px`
+            })
+        })
+    </script>
+</section>

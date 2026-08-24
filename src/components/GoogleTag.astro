@@ -1,0 +1,44 @@
+---
+// Google Analytics 4 with Consent Mode v2
+// Loads GA4 in consent-denied mode by default, updates when user consents.
+const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || ''
+---
+
+{gaId && (
+  <>
+    {/* Set default consent BEFORE gtag loads */}
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+
+      // Default: deny analytics until user consents
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+      });
+
+      // Check for existing consent
+      try {
+        var stored = localStorage.getItem('helio_cookie_consent');
+        if (stored) {
+          var parsed = JSON.parse(stored);
+          if (parsed.analytics === 'granted') {
+            gtag('consent', 'update', {
+              'analytics_storage': 'granted',
+            });
+          }
+        }
+      } catch(e) {}
+    </script>
+
+    {/* Load gtag.js */}
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+
+    {/* Configure GA4 */}
+    <script is:inline define:vars={{ gaId }}>
+      gtag('js', new Date());
+      gtag('config', gaId, {
+        send_page_view: true,
+      });
+    </script>
+  </>
+)}

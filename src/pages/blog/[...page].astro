@@ -1,0 +1,358 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { getCollection, type CollectionEntry } from 'astro:content'
+import { SITE_GITHUB, SITE_URL } from '../../const'
+import CopyInstallCommand, { INSTALL_COMMAND } from '../../components/CopyInstallCommand.astro'
+import { buttonVariants } from '@/components/ui/button'
+import type { GetStaticPaths, Page } from 'astro'
+import { blogSlug, type BlogCategory } from '../../content.config'
+import '../../styles/blog/shared.css'
+import '../../styles/blog/index.css'
+
+type BlogPost = CollectionEntry<'blog'>
+
+export const getStaticPaths = (async ({ paginate }) => {
+    const posts = (await getCollection('blog')).sort((a: BlogPost, b: BlogPost) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    return paginate(posts, { pageSize: Math.max(posts.length, 1) })
+}) satisfies GetStaticPaths
+
+type Props = {
+    page: Page<BlogPost>
+}
+
+const { page } = Astro.props
+const posts = page.data
+const featured = posts.slice(0, 6)
+const ARCHIVE_PAGE_SIZE = 12
+
+const categoriesFor = (post: BlogPost): BlogCategory[] => post.data.categories ?? [post.data.category]
+
+const categoryCounts = posts.reduce<Record<string, number>>((acc, post) => {
+    categoriesFor(post).forEach((category) => {
+        acc[category] = (acc[category] || 0) + 1
+    })
+    return acc
+}, {})
+
+const categories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+
+const initials = (name: string) =>
+    name
+        .split(/\s+/)
+        .map((part) => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+
+const catClass = (category: string) => `blog-cat-${category.toLowerCase()}`
+
+const topicDot: Record<string, string> = {
+    Guide: '#175CD3',
+    Governance: '#7C3AED',
+    Security: '#DC2626',
+    MCP: '#0891B2',
+    Agent: '#067647',
+}
+
+const formatDate = (date: Date) => date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+
+const pageTitle = 'Blog | Helio'
+const pageDescription = 'Field notes on governing AI agents at runtime: MCP policy, spend controls, approvals, audit trails, and real incidents.'
+
+const collectionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Blog',
+    description: pageDescription,
+    url: `${SITE_URL}/blog/`,
+    inLanguage: 'en',
+    isPartOf: {
+        '@id': `${SITE_URL}/#website`,
+    },
+    mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: posts.length,
+        itemListElement: posts.map((post, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: post.data.title,
+            url: `${SITE_URL}/blog/${blogSlug(post)}/`,
+        })),
+    },
+}
+
+const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog/` },
+    ],
+}
+
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+    <Fragment slot="head">
+        <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    </Fragment>
+
+    <main class="blog-index duration-150">
+        <section class="relative mx-auto max-w-6xl px-3 pt-32 sm:pt-36">
+            <div class="relative px-4 pb-10 pt-6 sm:px-8 sm:pb-12 sm:pt-8 md:px-12">
+                <div class="blog-hero-dots pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
+                <p class="mb-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-main-500">Resources</p>
+                <h1 class="text-title text-4xl font-semibold tracking-tight sm:text-6xl">Blog</h1>
+                <p class="text-body mt-4 max-w-xl text-[16px] leading-relaxed">{pageDescription}</p>
+            </div>
+        </section>
+
+        <div aria-hidden="true" class="border-t border-gray-200"></div>
+
+        {
+            featured.length > 0 && (
+                <section id="featured-section" class="relative mx-auto max-w-6xl border-x px-3">
+                    <div class="border-x">
+                        <div class="flex items-baseline justify-between gap-4 px-4 pt-7 sm:px-8 md:px-12">
+                            <h2 class="font-mono text-[13px] font-medium uppercase tracking-[0.12em] text-gray-500">Featured</h2>
+                            <span id="feat-count" class="font-mono text-[11px] text-gray-500">
+                                {featured.length} {featured.length === 1 ? 'post' : 'posts'}
+                            </span>
+                        </div>
+                        <div id="featured-grid" class="blog-feat-grid mt-[18px]">
+                            {featured.map((post) => (
+                                <a href={`/blog/${blogSlug(post)}/`} class="blog-feat-card" data-categories={categoriesFor(post).join('|')} data-title={post.data.title.toLowerCase()} data-description={post.data.description.toLowerCase()}>
+                                    <time class="font-mono text-[11px] tracking-wide text-gray-500" datetime={post.data.pubDate.toISOString()}>
+                                        {formatDate(post.data.pubDate)}
+                                    </time>
+                                    <h3>{post.data.title}</h3>
+                                    <p>{post.data.description}</p>
+                                    <div class="blog-feat-meta">
+                                        <span class="blog-author">
+                                            {post.data.authorImage ? (
+                                                <img class="blog-avatar" src={post.data.authorImage} alt="" width="22" height="22" loading="lazy" decoding="async" />
+                                            ) : (
+                                                <span class="blog-avatar" aria-hidden="true">
+                                                    {initials(post.data.author)}
+                                                </span>
+                                            )}
+                                            {post.data.author}
+                                        </span>
+                                        <span class="blog-tags">
+                                            {categoriesFor(post).map((category) => (
+                                                <span class:list={['blog-tag', catClass(category)]}>
+                                                    <i />
+                                                    {category}
+                                                </span>
+                                            ))}
+                                        </span>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )
+        }
+
+        <section class="relative mx-auto max-w-6xl border-x px-3">
+            <div class="blog-archive border-x border-t">
+                <div class="blog-archive-main min-w-0">
+                    <div class="flex items-center justify-between gap-4 border-b px-4 py-5 sm:px-8 md:px-12">
+                        <h2 class="font-mono text-[13px] font-medium uppercase tracking-[0.12em] text-gray-500">All posts</h2>
+                        <label class="blog-search relative w-full max-w-[280px]">
+                            <span class="sr-only">Search articles</span>
+                            <svg class="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.2-5.2m0 0A7.5 7.5 0 1 0 5.2 5.2a7.5 7.5 0 0 0 10.6 10.6Z"></path>
+                            </svg>
+                            <input id="search-input" type="search" placeholder="Search articles" autocomplete="off" class="h-11 w-full rounded-full border border-gray-200 bg-white py-0 pl-[34px] pr-3 text-[13px] text-gray-900 outline-none placeholder:text-gray-400 focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 sm:h-9" />
+                        </label>
+                    </div>
+
+                    {
+                        posts.length === 0 ? (
+                            <p class="px-4 py-16 text-center text-sm text-gray-500 sm:px-8">No posts yet. Check back soon.</p>
+                        ) : (
+                            <div id="posts-list" data-page-size={ARCHIVE_PAGE_SIZE}>
+                                {posts.map((post) => (
+                                    <a href={`/blog/${blogSlug(post)}/`} class="blog-row" data-categories={categoriesFor(post).join('|')} data-title={post.data.title.toLowerCase()} data-description={post.data.description.toLowerCase()}>
+                                        <div class="min-w-0">
+                                            <h3>{post.data.title}</h3>
+                                            <p>{post.data.description}</p>
+                                        </div>
+                                        <div class="blog-row-side">
+                                            <time class="font-mono text-[11px] text-gray-500" datetime={post.data.pubDate.toISOString()}>
+                                                {formatDate(post.data.pubDate)}
+                                            </time>
+                                            <span class="text-xs text-gray-500">{post.data.author}</span>
+                                            <span class="blog-tags">
+                                                {categoriesFor(post).map((category) => (
+                                                    <span class:list={['blog-tag', catClass(category)]}>
+                                                        <i />
+                                                        {category}
+                                                    </span>
+                                                ))}
+                                            </span>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        )
+                    }
+
+                    <p id="no-results" class="hidden px-4 py-16 text-center text-sm text-gray-500 sm:px-8">No posts match that filter.</p>
+
+                    <div id="load-more-wrap" class="flex justify-center px-4 py-7 sm:px-8 md:px-12" hidden={posts.length <= ARCHIVE_PAGE_SIZE}>
+                        <button type="button" id="load-more" class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-5 text-sm font-medium text-gray-900 shadow-sm transition hover:bg-gray-50 sm:h-10">
+                            Load more
+                            <span id="load-more-n" class="font-mono text-[11px] font-normal text-gray-500" aria-hidden="true">{Math.max(posts.length - ARCHIVE_PAGE_SIZE, 0)}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <aside class="blog-cats" aria-label="Topics">
+                    <h2 class="px-5 pb-3.5 pt-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500">Topics</h2>
+                    <button type="button" class="blog-cat" data-category="All" aria-pressed="true">
+                        <span class="blog-cat-left"><i></i>All</span>
+                        <span class="blog-cat-n">{posts.length}</span>
+                    </button>
+                    {
+                        categories.map(([category, count]) => (
+                            <button type="button" class:list={['blog-cat', catClass(category)]} data-category={category} aria-pressed="false">
+                                <span class="blog-cat-left">
+                                    <i style={`background-color:${topicDot[category] ?? '#a1a1aa'}`} />
+                                    {category}
+                                </span>
+                                <span class="blog-cat-n">{count}</span>
+                            </button>
+                        ))
+                    }
+                </aside>
+            </div>
+        </section>
+
+        <div class="mx-auto max-w-6xl border-x border-t border-gray-200 p-1 px-3">
+            <div aria-hidden="true" class="h-3 [--stripes-color:theme(colors.gray.200)] [background-image:linear-gradient(-45deg,var(--stripes-color)_25%,transparent_25%,transparent_50%,var(--stripes-color)_50%,var(--stripes-color)_75%,transparent_75%,transparent)] [background-size:5px_5px]"></div>
+        </div>
+        <div aria-hidden="true" class="border-b border-gray-200"></div>
+
+        <!--  -->
+        <section class="scroll-my-16 bg-gray-950 py-12">
+            <div aria-hidden="true" class="border-b border-gray-900"></div>
+            <div class="mx-auto max-w-6xl border-x border-b border-gray-900 p-1 px-3">
+                <div aria-hidden="true" class="h-3 [--stripes-color:theme(colors.white/0.1)] [background-image:linear-gradient(-45deg,var(--stripes-color)_25%,transparent_25%,transparent_50%,var(--stripes-color)_50%,var(--stripes-color)_75%,transparent_75%,transparent)] [background-size:5px_5px]"></div>
+            </div>
+            <div class="dark mx-auto max-w-6xl border-x border-gray-900 px-3">
+                <div class="border-x border-gray-900 px-2 py-12 text-center sm:px-12">
+                    <h2 class="mb-3 text-2xl font-bold text-white sm:text-3xl">Put the gate in. Then let them run.</h2>
+                    <p class="mx-auto mb-6 max-w-2xl leading-relaxed text-gray-300">Install the open-source proxy, watch real traffic, then add the rules your agents need.</p>
+
+                    <div class="mt-8 flex w-full flex-col items-center justify-center gap-7 sm:mt-10 sm:flex-row sm:gap-2.5">
+                        <a href={`${SITE_GITHUB}/blob/main/docs/getting-started.md`} target="_blank" rel="noopener noreferrer" class={buttonVariants({ size: 'default', className: 'group w-full cursor-pointer gap-2 !rounded-full bg-gray-900 p-3 px-4 hover:bg-main-500 sm:w-auto sm:shrink-0 dark:bg-white dark:text-gray-900 dark:hover:bg-main-400 dark:hover:text-white' })} data-test="cta-get-started">
+                            Read the 5-minute setup
+                            <span class="hidden size-5 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-1.5 group-hover:bg-white/20 sm:flex dark:bg-gray-900/10 dark:group-hover:bg-white/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" class="size-3.5" aria-hidden="true">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m10 16 4-4-4-4"></path>
+                                </svg>
+                            </span>
+                        </a>
+                        <CopyInstallCommand wrapClass="w-full sm:w-auto" class="inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-full border border-gray-300 bg-white px-5 shadow-sm transition hover:bg-gray-50 sm:w-auto" data-test="cta-copy-command">
+                            <code class="font-mono text-xs font-normal text-gray-900">{INSTALL_COMMAND}</code>
+                        </CopyInstallCommand>
+                    </div>
+                </div>
+            </div>
+            <div class="mx-auto max-w-6xl border-x border-t border-gray-900 p-1 px-3">
+                <div aria-hidden="true" class="h-3 [--stripes-color:theme(colors.white/0.1)] [background-image:linear-gradient(-45deg,var(--stripes-color)_25%,transparent_25%,transparent_50%,var(--stripes-color)_50%,var(--stripes-color)_75%,transparent_75%,transparent)] [background-size:5px_5px]"></div>
+            </div>
+            <div aria-hidden="true" class="border-b border-gray-900"></div>
+        </section>
+    </main>
+</Layout>
+
+<script>
+    const searchInput = document.getElementById('search-input') as HTMLInputElement | null
+    const categoryFilters = document.querySelectorAll('.blog-cat') as NodeListOf<HTMLButtonElement>
+    const featuredCards = document.querySelectorAll('.blog-feat-card') as NodeListOf<HTMLElement>
+    const postRows = document.querySelectorAll('.blog-row') as NodeListOf<HTMLElement>
+    const noResults = document.getElementById('no-results')
+    const postsList = document.getElementById('posts-list')
+    const featCount = document.getElementById('feat-count')
+    const featuredSection = document.getElementById('featured-section')
+    const loadMoreWrap = document.getElementById('load-more-wrap')
+    const loadMore = document.getElementById('load-more')
+    const loadMoreN = document.getElementById('load-more-n')
+
+    const pageSize = Number(postsList?.dataset.pageSize) || 12
+    let visibleCount = pageSize
+    let activeCategory = 'All'
+
+    const urlQuery = new URLSearchParams(window.location.search).get('q')
+    if (urlQuery && searchInput) {
+        searchInput.value = urlQuery
+    }
+
+    const matches = (el: HTMLElement, query: string) => {
+        const categories = (el.dataset.categories || '').split('|')
+        const title = el.dataset.title || ''
+        const description = el.dataset.description || ''
+        const categoryOk = activeCategory === 'All' || categories.includes(activeCategory)
+        const queryOk = !query || title.includes(query) || description.includes(query)
+        return categoryOk && queryOk
+    }
+
+    const applyFilters = () => {
+        const query = (searchInput?.value || '').toLowerCase().trim()
+        let featuredVisible = 0
+
+        featuredCards.forEach((card) => {
+            const show = matches(card, query)
+            card.hidden = !show
+            if (show) featuredVisible++
+        })
+
+        const matching = [...postRows].filter((row) => matches(row, query))
+        postRows.forEach((row) => {
+            row.hidden = true
+        })
+        matching.forEach((row, index) => {
+            row.hidden = index >= visibleCount
+        })
+
+        if (featCount) {
+            featCount.textContent = `${featuredVisible} ${featuredVisible === 1 ? 'post' : 'posts'}`
+        }
+        if (featuredSection) featuredSection.hidden = featuredCards.length > 0 && featuredVisible === 0
+
+        const empty = matching.length === 0
+        noResults?.classList.toggle('hidden', !empty)
+        if (postsList) postsList.hidden = empty
+
+        const remaining = Math.max(0, matching.length - visibleCount)
+        if (loadMoreN) loadMoreN.textContent = String(remaining)
+        if (loadMoreWrap) loadMoreWrap.hidden = empty || remaining === 0
+    }
+
+    searchInput?.addEventListener('input', () => {
+        visibleCount = pageSize
+        applyFilters()
+    })
+
+    categoryFilters.forEach((filter) => {
+        filter.addEventListener('click', () => {
+            categoryFilters.forEach((button) => button.setAttribute('aria-pressed', 'false'))
+            filter.setAttribute('aria-pressed', 'true')
+            activeCategory = filter.dataset.category || 'All'
+            visibleCount = pageSize
+            applyFilters()
+        })
+    })
+
+    loadMore?.addEventListener('click', () => {
+        visibleCount += pageSize
+        applyFilters()
+    })
+
+    applyFilters()
+</script>

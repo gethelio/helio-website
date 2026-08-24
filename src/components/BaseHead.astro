@@ -1,0 +1,165 @@
+---
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_IMAGE } from '../const'
+import './../styles/tailus.css'
+
+export interface Props {
+    title?: string
+    description?: string
+    image?: string
+    ogType?: string
+    noindex?: boolean
+}
+
+const { title = SITE_TITLE, description = SITE_DESCRIPTION, image = SITE_IMAGE, ogType = 'website', noindex = false } = Astro.props
+
+// Build canonical URL
+const canonicalURL = new URL(Astro.url.pathname, SITE_URL)
+
+// Check if this is the homepage for JSON-LD
+const isHomepage = Astro.url.pathname === '/' || Astro.url.pathname === ''
+---
+
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="32x32" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="color-scheme" content="dark light" />
+<meta name="theme-color" content="#FF4C01" />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Robots -->
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="description" content={description} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={new URL(image, SITE_URL)} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:site_name" content="Helio" />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:site" content="@get_helio" />
+<meta property="twitter:url" content={canonicalURL} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={new URL(image, SITE_URL)} />
+
+<!-- Self-hosted fonts for performance -->
+<link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/inter-latin-600.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/bricolage-grotesque-latin-600.woff2" as="font" type="font/woff2" crossorigin />
+<style is:inline>
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('/fonts/inter-latin-400.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('/fonts/inter-latin-500.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url('/fonts/inter-latin-600.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url('/fonts/inter-latin-700.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+        font-family: 'Bricolage Grotesque';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url('/fonts/bricolage-grotesque-latin-600.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+</style>
+
+<!-- JSON-LD Structured Data -->
+{
+    isHomepage && (
+        <script
+            type="application/ld+json"
+            set:html={JSON.stringify({
+                '@context': 'https://schema.org',
+                '@graph': [
+                    {
+                        '@type': 'WebSite',
+                        '@id': `${SITE_URL}/#website`,
+                        url: SITE_URL,
+                        name: 'Helio',
+                        description: SITE_DESCRIPTION,
+                        inLanguage: 'en',
+                        publisher: {
+                            '@id': `${SITE_URL}/#organization`,
+                        },
+                    },
+                    {
+                        '@type': 'Organization',
+                        '@id': `${SITE_URL}/#organization`,
+                        name: 'Helio',
+                        url: SITE_URL,
+                        description: SITE_DESCRIPTION,
+                        email: 'hello@helio.so',
+                        logo: {
+                            '@type': 'ImageObject',
+                            url: `${SITE_URL}/favicon.svg`,
+                            width: 512,
+                            height: 512,
+                        },
+                        sameAs: ['https://x.com/get_helio', 'https://www.linkedin.com/company/get-helio/'],
+                    },
+                    {
+                        '@type': 'WebApplication',
+                        '@id': `${SITE_URL}/#helio`,
+                        name: 'Helio',
+                        description: SITE_DESCRIPTION,
+                        url: SITE_URL,
+                        inLanguage: 'en',
+                        applicationCategory: 'DeveloperApplication',
+                        operatingSystem: 'Node.js 24 or later',
+                        offers: {
+                            '@type': 'Offer',
+                            price: '0',
+                            priceCurrency: 'USD',
+                        },
+                        provider: {
+                            '@id': `${SITE_URL}/#organization`,
+                        },
+                        featureList: ['Policy enforcement for MCP tool calls', 'Cross-tool spend budgets', 'Human approval workflows', 'Evidence and action dependencies', 'Tool-definition drift detection', 'Durable audit trail'],
+                    },
+                ],
+            })}
+        />
+    )
+}

@@ -1,0 +1,10 @@
+@media (prefers-reduced-motion: reduce) {
+  .why-stack-pin {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  .why-stack-pin > div {
+    height: auto !important;
+  }
+}

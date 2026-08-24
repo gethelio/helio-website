@@ -1,0 +1,37 @@
+---
+import BaseHead from '../components/BaseHead.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import DesignPartnerModal from '../components/DesignPartnerModal.astro'
+import Analytics from '@vercel/analytics/astro'
+import SpeedInsights from '@vercel/speed-insights/astro'
+import GoogleTag from '../components/GoogleTag.astro'
+import CookieConsent from '../components/analytics/CookieConsent.astro'
+interface Props {
+    title: string
+    description?: string
+    image?: string
+    ogType?: string
+    noindex?: boolean
+}
+
+const { title, description, image, ogType, noindex } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead title={title} description={description} image={image} ogType={ogType} noindex={noindex} />
+        <Analytics />
+        <SpeedInsights />
+        <GoogleTag />
+        <slot name="head" />
+    </head>
+    <body class="bg-white dark:bg-gray-950">
+        <Header />
+        <slot />
+        <Footer />
+        <DesignPartnerModal />
+        <CookieConsent />
+    </body>
+</html>

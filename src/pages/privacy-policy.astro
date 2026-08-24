@@ -1,0 +1,152 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { SITE_EMAIL } from '../const'
+---
+
+<Layout title="Privacy Policy | Helio" description="How Helio Ltd. collects, uses, shares, and safeguards personal data under UK GDPR and the Data Protection Act 2018.">
+    <main>
+        <section>
+            <div class="mx-auto max-w-4xl px-6">
+                <div class="pb-32 pt-32 md:pt-48">
+                    <h1 class="text-title text-center text-4xl font-semibold sm:text-5xl">Privacy Policy</h1>
+                    <p class="text-body mt-4 text-center">Last updated: August 2026</p>
+
+                    <div class="prose prose-gray mx-auto mt-12 max-w-none dark:prose-invert">
+                        <p>
+                            We, Helio Ltd. ("Helio", "we", "us", or "our"), welcome your use of our website at helio.so, our open-source MCP governance proxy, and any hosted services we provide ("Our Services"). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal data when you use our services, in accordance with the UK General Data Protection Regulation ("UK GDPR") and the Data Protection Act 2018. Personal data means any information relating to an identified or identifiable natural person, including your name and email
+                            address.
+                        </p>
+                        <p>
+                            Helio is a governance proxy for Model Context Protocol ("MCP") tool calls. The open-source proxy is designed to be self-hosted. In that configuration, policy rules, tool-call traffic, and audit records stay on your infrastructure and are not transmitted to Helio. This Privacy Policy covers personal data we process when you visit our website, contact us, submit a design-partner enquiry, or use a hosted Helio service that we operate on your behalf.
+                        </p>
+
+                        <h2>1. Data Controller</h2>
+                        <p>The data controller responsible for your personal data is:</p>
+                        <p>Helio Ltd.<br />128 City Road<br />London EC1V 2NX<br />United Kingdom</p>
+                        <p>Email: <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a></p>
+
+                        <h2>2. Data We Collect Automatically</h2>
+                        <p>When you access our website, certain connection data is automatically transmitted to our web server, including:</p>
+                        <ul>
+                            <li>Your IP address</li>
+                            <li>Date and time of access</li>
+                            <li>The URL of the requested resource</li>
+                            <li>Browser type and version (user agent)</li>
+                            <li>Referring URL</li>
+                        </ul>
+                        <p>This data is processed to provide and secure our website. We do not use this data to identify you personally or merge it with other data sources, except where analytics tools are enabled with your consent as described below. The legal basis for this processing is our legitimate interest in providing a functional and secure website (Article 6(1)(f) UK GDPR).</p>
+
+                        <h2>3. Data You Provide to Us</h2>
+                        <p>You can browse our website and download or run the open-source software without providing personal data. Certain website features require you to provide information.</p>
+
+                        <h3>3.1 Email and other correspondence</h3>
+                        <p>If you contact us by email or through other channels listed on our website, we collect the information you choose to send us. This typically includes your email address and the content of your message.</p>
+                        <p><strong>Purpose:</strong> To respond to your enquiry and, where relevant, to discuss sales, partnerships, or support.</p>
+                        <p><strong>Legal basis:</strong> Our legitimate interest in communicating with you (Article 6(1)(f) UK GDPR) and, where you are exploring a commercial engagement, steps prior to entering a contract (Article 6(1)(b) UK GDPR).</p>
+                        <p><strong>Retention:</strong> Correspondence is retained for as long as needed to handle your enquiry and for a reasonable period afterwards for record-keeping, unless a longer period is required by law.</p>
+
+                        <h3>3.2 Design partner and product enquiries</h3>
+                        <p>If you request a design-partner conversation or otherwise ask us to follow up, we collect your email address and the details you choose to share about your agent setup. We use this to evaluate the request, reply, and, where relevant, discuss a commercial engagement.</p>
+                        <p><strong>Purpose:</strong> Handling design-partner and product enquiries.</p>
+                        <p><strong>Legal basis:</strong> Your consent (Article 6(1)(a) UK GDPR), steps prior to entering a contract (Article 6(1)(b) UK GDPR), and our legitimate interest in communicating with prospective users (Article 6(1)(f) UK GDPR).</p>
+                        <p><strong>Retention:</strong> Enquiry data is retained until you ask us to delete it, or until it is no longer needed for the purpose collected.</p>
+
+                        <h3>3.3 Hosted and Enterprise Services</h3>
+                        <p>If you use a Helio-hosted dashboard, incident log, SSO, or related enterprise service, we process account and operational data needed to provide that service. This may include names, work email addresses, organisation details, authentication identifiers, configuration metadata, and audit or incident records you choose to store with us.</p>
+                        <p>Self-hosted deployments of the open-source proxy do not send tool-call payloads, policies, or audit trails to Helio. We do not receive that data unless you separately share it with us (for example, for support) or you subscribe to a hosted service that stores it.</p>
+                        <p><strong>Legal basis:</strong> Performance of a contract (Article 6(1)(b) UK GDPR) and our legitimate interest in operating and securing the service (Article 6(1)(f) UK GDPR).</p>
+
+                        <h2>4. Cookies and Similar Technologies</h2>
+                        <p>Our website uses cookies and similar technologies (such as local storage and scripts) to ensure functionality, improve user experience, analyse usage, and measure the effectiveness of our marketing. Cookies are small text files stored on your device.</p>
+
+                        <h3>4.1 Categories of Cookies</h3>
+                        <p><strong>Strictly Necessary Cookies:</strong> These are essential for our website to function. They include:</p>
+                        <ul>
+                            <li>Cookie-consent preference stored in local storage</li>
+                            <li>Security cookies from our hosting provider (Vercel)</li>
+                        </ul>
+                        <p>Legal basis: Performance of a contract (Article 6(1)(b) UK GDPR) and legitimate interest (Article 6(1)(f) UK GDPR).</p>
+
+                        <p><strong>Analytics Cookies:</strong> With your consent, we use analytics tools to understand how our website is used. These include:</p>
+                        <ul>
+                            <li>Google Analytics (via Google Tag Manager)</li>
+                            <li>Vercel Analytics and Speed Insights</li>
+                        </ul>
+                        <p>These tools create pseudonymised usage profiles. IP addresses are anonymised where the provider supports it. Legal basis: Your consent (Article 6(1)(a) UK GDPR), provided via our cookie banner.</p>
+
+                        <h3>4.2 Managing Cookies</h3>
+                        <p>When you first visit our website, we display a cookie banner where you can accept or decline non-essential cookies. You can also configure your browser to reject or delete cookies, though this may affect functionality.</p>
+
+                        <h2>5. Third-Party Services</h2>
+
+                        <h3>5.1 Hosting (Vercel)</h3>
+                        <p>Our website is hosted by Vercel Inc., 340 S Lemon Ave #3717, Walnut, CA 91789, USA. When you visit our website, Vercel processes your IP address to deliver content and protect against security threats. We also use Vercel Analytics and Speed Insights to understand site performance.</p>
+                        <p>Legal basis: Legitimate interest (Article 6(1)(f) UK GDPR); analytics where consent is required (Article 6(1)(a) UK GDPR).</p>
+                        <p>Vercel is certified under the EU-US Data Privacy Framework. For more information, see Vercel's privacy policy.</p>
+
+                        <h3>5.2 Google Analytics</h3>
+                        <p>We use Google Analytics to analyse website usage. Your IP address is anonymised before processing where supported. Google may transfer data to the USA under the EU-US Data Privacy Framework.</p>
+                        <p>Legal basis: Your consent (Article 6(1)(a) UK GDPR).</p>
+
+                        <h3>5.3 Email Delivery (Resend)</h3>
+                        <p>We use Resend to send transactional emails related to design-partner and other website enquiries you submit.</p>
+                        <p>Legal basis: Performance of a contract or steps prior to a contract (Article 6(1)(b) UK GDPR), and legitimate interest in responding to enquiries (Article 6(1)(f) UK GDPR).</p>
+
+                        <h2>6. International Data Transfers</h2>
+                        <p>Some of our service providers are located outside the UK. When we transfer your data internationally, we ensure appropriate safeguards are in place:</p>
+                        <ul>
+                            <li><strong>Adequacy decisions:</strong> Transfers to countries the UK has deemed to provide adequate protection</li>
+                            <li><strong>International Data Transfer Agreement (IDTA):</strong> The UK's standard contractual clauses for international transfers</li>
+                            <li><strong>UK Extension to EU SCCs:</strong> Where applicable, we use EU Standard Contractual Clauses with the UK Addendum</li>
+                        </ul>
+                        <p>For transfers to the USA, we rely on the EU-US Data Privacy Framework where the recipient is certified, or appropriate contractual safeguards.</p>
+
+                        <h2>7. Data Retention</h2>
+                        <p>We retain your personal data only for as long as necessary to fulfil the purposes for which it was collected, or as required by law. Specific retention periods:</p>
+                        <ul>
+                            <li><strong>Contact and design-partner enquiries:</strong> For the duration of the enquiry plus a reasonable record-keeping period</li>
+                            <li><strong>Hosted-service account data:</strong> Duration of the account plus 30 days, unless a longer period is required by law or agreed in a customer contract</li>
+                            <li><strong>Analytics data:</strong> As per our analytics providers' policies (typically 14-26 months)</li>
+                        </ul>
+
+                        <h2>8. Data Security</h2>
+                        <p>We implement appropriate technical and organisational measures to protect your personal data against unauthorised access, alteration, disclosure, or destruction. These include encryption, access controls, and regular security assessments.</p>
+                        <p>The open-source Helio proxy is designed so that policy evaluation and audit storage happen on infrastructure you control. Helio does not phone home from self-hosted deployments.</p>
+
+                        <h2>9. Your Rights</h2>
+                        <p>Under UK data protection law, you have the following rights:</p>
+                        <ul>
+                            <li><strong>Right of access:</strong> Request a copy of your personal data</li>
+                            <li><strong>Right to rectification:</strong> Request correction of inaccurate data</li>
+                            <li><strong>Right to erasure:</strong> Request deletion of your data in certain circumstances</li>
+                            <li><strong>Right to restrict processing:</strong> Request limitation of how we use your data</li>
+                            <li><strong>Right to data portability:</strong> Receive your data in a structured, machine-readable format</li>
+                            <li><strong>Right to object:</strong> Object to processing based on legitimate interests or for direct marketing</li>
+                            <li><strong>Right to withdraw consent:</strong> Withdraw consent at any time where processing is based on consent</li>
+                        </ul>
+                        <p>To exercise any of these rights, please contact us at <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a>. We will respond within one month.</p>
+                        <p>You also have the right to lodge a complaint with the Information Commissioner's Office (ICO), the UK supervisory authority: <a href="https://ico.org.uk" target="_blank" rel="noopener">ico.org.uk</a>.</p>
+
+                        <h2>10. Right to Object</h2>
+                        <p>You have the right to object to processing of your personal data at any time where we rely on legitimate interests as the legal basis. If you object, we will stop processing unless we can demonstrate compelling legitimate grounds that override your interests, rights, and freedoms.</p>
+                        <p>For direct marketing, you can object at any time and we will stop processing your data for this purpose immediately.</p>
+
+                        <h2>11. Automated Decision-Making</h2>
+                        <p>We do not use your personal data for automated decision-making or profiling that produces legal or similarly significant effects. Policy decisions made by a Helio proxy you operate (allow, deny, hold for approval, and similar) are evaluations of tool calls against rules you configure, on infrastructure you control unless you have contracted a hosted service.</p>
+
+                        <h2>12. Children's Privacy</h2>
+                        <p>Our services are not directed at children under 18 years of age. We do not knowingly collect personal data from children. If you believe we have collected data from a child, please contact us immediately.</p>
+
+                        <h2>13. Changes to This Policy</h2>
+                        <p>We may update this Privacy Policy from time to time. We will notify you of material changes by posting the updated policy on our website with a new "Last updated" date. We encourage you to review this policy periodically.</p>
+
+                        <h2>14. Contact Us</h2>
+                        <p>If you have any questions about this Privacy Policy or our data practices, please contact us:</p>
+                        <p>Helio Ltd.<br />128 City Road<br />London EC1V 2NX<br />United Kingdom</p>
+                        <p>Email: <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</Layout>

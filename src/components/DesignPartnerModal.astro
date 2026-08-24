@@ -1,0 +1,325 @@
+---
+import { DESIGN_PARTNER_BOOKING_URL } from '../const'
+---
+
+<!-- Design partner modal. Trigger with data-design-partner on any button/link. -->
+<div id="design-partner-modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-gray-950/50 py-8 backdrop-blur-sm sm:items-center">
+    <div class="card bg-ui mx-4 w-full max-w-lg border p-1 shadow-xl shadow-gray-950/10">
+        <div class="relative max-h-[90dvh] overflow-y-auto p-6 sm:p-8">
+            <button type="button" id="design-partner-close-btn" class="absolute right-4 top-4 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600" aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <div id="design-partner-form-state">
+                <div>
+                    <h2 class="text-title pr-8 text-lg font-semibold">Tell us about your setup</h2>
+                    <p class="text-body mt-1 text-sm">We work with a small number of teams putting Helio in front of production agents. Tell us what yours does and we'll take a look.</p>
+                </div>
+
+                <form id="design-partner-form" class="mt-6 space-y-4 [--input-radius:theme(borderRadius.lg)]" novalidate>
+                    <!-- Honeypot: leave empty. Off-screen so humans never see it. -->
+                    <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+                        <label for="dp-fax">Fax</label>
+                        <input type="text" id="dp-fax" name="fax" tabindex="-1" autocomplete="off" />
+                    </div>
+
+                    <div class="field">
+                        <label class="text-title text-sm" for="dp-email">Email</label>
+                        <input type="email" id="dp-email" name="email" autocomplete="email" class="input variant-mixed sz-md !rounded-lg" placeholder="you@company.com" />
+                        <p id="dp-email-error" class="mt-1 hidden text-xs text-red-500">Please enter a valid email address</p>
+                    </div>
+
+                    <div class="field">
+                        <label class="text-title text-sm" for="dp-agent-does">What does your agent do that you'd want to control?</label>
+                        <textarea id="dp-agent-does" name="agentDoes" rows="3" class="textarea variant-mixed sz-md !rounded-lg" placeholder="Refunds Stripe charges when a Zendesk ticket is tagged refund"></textarea>
+                        <p id="dp-agent-does-error" class="mt-1 hidden text-xs text-red-500">Tell us what your agent does</p>
+                    </div>
+
+                    <div class="field">
+                        <label class="text-title text-sm" for="dp-tools">Which tools does it reach?</label>
+                        <input type="text" id="dp-tools" name="tools" class="input variant-mixed sz-md !rounded-lg" placeholder="Stripe, Zendesk, Slack" />
+                        <p id="dp-tools-error" class="mt-1 hidden text-xs text-red-500">Tell us which tools it reaches</p>
+                    </div>
+
+                    <fieldset class="field">
+                        <legend class="text-title text-sm">Does a human approve each consequential action today?</legend>
+                        <div class="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2">
+                            <label class="flex cursor-pointer items-center gap-2.5 text-sm text-[--title-text-color]">
+                                <span class="radio group !rounded-full">
+                                    <input class="peer" type="radio" name="humanApproval" value="yes" />
+                                    <span class="radio-indicator"></span>
+                                </span>
+                                Yes
+                            </label>
+                            <label class="flex cursor-pointer items-center gap-2.5 text-sm text-[--title-text-color]">
+                                <span class="radio group !rounded-full">
+                                    <input class="peer" type="radio" name="humanApproval" value="no" />
+                                    <span class="radio-indicator"></span>
+                                </span>
+                                No
+                            </label>
+                            <label class="flex cursor-pointer items-center gap-2.5 text-sm text-[--title-text-color]">
+                                <span class="radio group !rounded-full">
+                                    <input class="peer" type="radio" name="humanApproval" value="some" />
+                                    <span class="radio-indicator"></span>
+                                </span>
+                                Some
+                            </label>
+                        </div>
+                        <p id="dp-approval-error" class="mt-1 hidden text-xs text-red-500">Please choose yes, no, or some</p>
+                    </fieldset>
+
+                    <p id="dp-form-error" class="hidden text-xs text-red-500">Something went wrong. Please try again.</p>
+
+                    <button type="submit" id="dp-submit-btn" class="!mt-12 flex w-full items-center justify-center rounded-full bg-gray-950 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-main-500 disabled:cursor-not-allowed disabled:opacity-50">Send</button>
+                </form>
+            </div>
+
+            <div id="design-partner-success-state" class="hidden" aria-live="polite">
+                <div class="text-center">
+                    <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-green-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-title mt-4 text-lg font-semibold">Request received.</h2>
+                    <p class="text-body mt-3 text-sm">You'll hear from me within two working days. If you want to pick a time now, <a href={DESIGN_PARTNER_BOOKING_URL} target="_blank" rel="noopener noreferrer" class="font-medium text-main-600 underline-offset-2 hover:underline">book a 30-minute call</a>.</p>
+                </div>
+
+                <div class="mt-6">
+                    <button type="button" id="design-partner-done-btn" class="btn variant-solid intent-primary sz-sm w-full">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const designPartnerModal = document.getElementById('design-partner-modal') as HTMLDivElement
+    const designPartnerForm = document.getElementById('design-partner-form') as HTMLFormElement
+    const designPartnerFormState = document.getElementById('design-partner-form-state') as HTMLDivElement
+    const designPartnerSuccessState = document.getElementById('design-partner-success-state') as HTMLDivElement
+    const designPartnerCloseBtn = document.getElementById('design-partner-close-btn') as HTMLButtonElement
+    const designPartnerDoneBtn = document.getElementById('design-partner-done-btn') as HTMLButtonElement
+    const emailInput = document.getElementById('dp-email') as HTMLInputElement
+    const emailError = document.getElementById('dp-email-error') as HTMLParagraphElement
+    const agentDoesInput = document.getElementById('dp-agent-does') as HTMLTextAreaElement
+    const agentDoesError = document.getElementById('dp-agent-does-error') as HTMLParagraphElement
+    const toolsInput = document.getElementById('dp-tools') as HTMLInputElement
+    const toolsError = document.getElementById('dp-tools-error') as HTMLParagraphElement
+    const approvalError = document.getElementById('dp-approval-error') as HTMLParagraphElement
+    const formError = document.getElementById('dp-form-error') as HTMLParagraphElement
+    const honeypotInput = document.getElementById('dp-fax') as HTMLInputElement
+    const submitBtn = document.getElementById('dp-submit-btn') as HTMLButtonElement
+
+    const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const SUBMIT_LABEL = 'Request a call'
+
+    let openedAt = 0
+
+    const trackEvent = (event: string, props?: Record<string, unknown>) => {
+        try {
+            if (typeof (window as any).gtag === 'function') {
+                ;(window as any).gtag('event', event, props || {})
+            }
+        } catch {}
+    }
+
+    const setError = (input: HTMLElement, errorEl: HTMLElement, show: boolean) => {
+        errorEl.classList.toggle('hidden', !show)
+        input.classList.toggle('border-red-500', show)
+        input.setAttribute('aria-invalid', show ? 'true' : 'false')
+    }
+
+    const selectedApproval = (): string => {
+        const checked = designPartnerForm.querySelector('input[name="humanApproval"]:checked') as HTMLInputElement | null
+        return checked?.value || ''
+    }
+
+    const validateEmail = (showEmpty = true): boolean => {
+        const value = emailInput.value.trim()
+        if (!value) {
+            if (showEmpty) setError(emailInput, emailError, true)
+            return false
+        }
+        const ok = EMAIL_PATTERN.test(value)
+        setError(emailInput, emailError, !ok)
+        return ok
+    }
+
+    const validateAgentDoes = (showEmpty = true): boolean => {
+        const ok = agentDoesInput.value.trim().length > 0
+        if (!ok && !showEmpty && !agentDoesInput.value) {
+            setError(agentDoesInput, agentDoesError, false)
+            return false
+        }
+        setError(agentDoesInput, agentDoesError, !ok)
+        return ok
+    }
+
+    const validateTools = (showEmpty = true): boolean => {
+        const ok = toolsInput.value.trim().length > 0
+        if (!ok && !showEmpty && !toolsInput.value) {
+            setError(toolsInput, toolsError, false)
+            return false
+        }
+        setError(toolsInput, toolsError, !ok)
+        return ok
+    }
+
+    const validateApproval = (): boolean => {
+        const ok = selectedApproval().length > 0
+        approvalError.classList.toggle('hidden', ok)
+        return ok
+    }
+
+    const resetFieldErrors = () => {
+        setError(emailInput, emailError, false)
+        setError(agentDoesInput, agentDoesError, false)
+        setError(toolsInput, toolsError, false)
+        approvalError.classList.add('hidden')
+        formError.classList.add('hidden')
+    }
+
+    const utmPayload = () => {
+        const params = new URLSearchParams(window.location.search)
+        return {
+            utmSource: params.get('utm_source') || '',
+            utmMedium: params.get('utm_medium') || '',
+            utmCampaign: params.get('utm_campaign') || '',
+            utmTerm: params.get('utm_term') || '',
+            utmContent: params.get('utm_content') || '',
+        }
+    }
+
+    const openDesignPartnerModal = () => {
+        openedAt = Date.now()
+        designPartnerModal.classList.remove('hidden')
+        designPartnerModal.classList.add('flex')
+        document.body.classList.add('overflow-hidden')
+        emailInput.focus()
+        trackEvent('design_partner_modal_opened')
+    }
+
+    const closeDesignPartnerModal = () => {
+        designPartnerModal.classList.add('hidden')
+        designPartnerModal.classList.remove('flex')
+        document.body.classList.remove('overflow-hidden')
+        setTimeout(() => {
+            designPartnerFormState.classList.remove('hidden')
+            designPartnerSuccessState.classList.add('hidden')
+            designPartnerForm.reset()
+            resetFieldErrors()
+            submitBtn.disabled = false
+            submitBtn.textContent = SUBMIT_LABEL
+        }, 200)
+    }
+
+    const showSuccessState = () => {
+        designPartnerFormState.classList.add('hidden')
+        designPartnerSuccessState.classList.remove('hidden')
+    }
+
+    emailInput.addEventListener('blur', () => validateEmail(true))
+    agentDoesInput.addEventListener('blur', () => validateAgentDoes(true))
+    toolsInput.addEventListener('blur', () => validateTools(true))
+
+    emailInput.addEventListener('input', () => {
+        if (!emailError.classList.contains('hidden')) validateEmail(true)
+    })
+    agentDoesInput.addEventListener('input', () => {
+        if (!agentDoesError.classList.contains('hidden')) validateAgentDoes(true)
+    })
+    toolsInput.addEventListener('input', () => {
+        if (!toolsError.classList.contains('hidden')) validateTools(true)
+    })
+    designPartnerForm.querySelectorAll('input[name="humanApproval"]').forEach((input) => {
+        input.addEventListener('change', () => validateApproval())
+    })
+
+    document.addEventListener('click', (e) => {
+        const trigger = (e.target as HTMLElement).closest('[data-design-partner]')
+        if (trigger) {
+            e.preventDefault()
+            openDesignPartnerModal()
+        }
+    })
+
+    window.addEventListener('open-design-partner', () => {
+        openDesignPartnerModal()
+    })
+
+    designPartnerForm.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        formError.classList.add('hidden')
+
+        const emailOk = validateEmail(true)
+        const agentOk = validateAgentDoes(true)
+        const toolsOk = validateTools(true)
+        const approvalOk = validateApproval()
+        if (!emailOk || !agentOk || !toolsOk || !approvalOk) {
+            return
+        }
+
+        submitBtn.disabled = true
+        submitBtn.textContent = 'Sending...'
+
+        const payload = {
+            email: emailInput.value.trim(),
+            agentDoes: agentDoesInput.value.trim(),
+            tools: toolsInput.value.trim(),
+            humanApproval: selectedApproval(),
+            website: honeypotInput.value,
+            openedAt,
+            referrer: document.referrer || '',
+            ...utmPayload(),
+        }
+
+        try {
+            const response = await fetch('/api/design-partner/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+
+            if (response.ok) {
+                trackEvent('design_partner_submitted', {
+                    human_approval: payload.humanApproval,
+                    has_utm: Boolean(payload.utmSource || payload.utmCampaign),
+                })
+                showSuccessState()
+                return
+            }
+
+            const data = await response.json().catch(() => ({}))
+            trackEvent('design_partner_error', { status: response.status })
+            formError.textContent = data.error || 'Something went wrong. Please try again.'
+            formError.classList.remove('hidden')
+            submitBtn.textContent = SUBMIT_LABEL
+            submitBtn.disabled = false
+        } catch {
+            trackEvent('design_partner_error', { status: 'network' })
+            formError.textContent = 'Something went wrong. Please try again.'
+            formError.classList.remove('hidden')
+            submitBtn.textContent = SUBMIT_LABEL
+            submitBtn.disabled = false
+        }
+    })
+
+    designPartnerCloseBtn.addEventListener('click', closeDesignPartnerModal)
+    designPartnerDoneBtn.addEventListener('click', closeDesignPartnerModal)
+
+    designPartnerModal.addEventListener('click', (e) => {
+        if (e.target === designPartnerModal) {
+            closeDesignPartnerModal()
+        }
+    })
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !designPartnerModal.classList.contains('hidden')) {
+            closeDesignPartnerModal()
+        }
+    })
+</script>

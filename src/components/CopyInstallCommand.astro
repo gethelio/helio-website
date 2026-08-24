@@ -1,0 +1,51 @@
+---
+export const INSTALL_COMMAND = 'npx @gethelio/proxy init'
+
+interface Props {
+    class?: string
+    wrapClass?: string
+    'data-test'?: string
+}
+
+const { class: className, wrapClass, 'data-test': dataTest } = Astro.props
+---
+
+<div class:list={['relative', wrapClass]}>
+    <span data-copy-status class="pointer-events-none absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 whitespace-nowrap text-xs font-medium text-emerald-600" aria-live="polite"></span>
+    <button type="button" class={className} data-copy-command={INSTALL_COMMAND} data-test={dataTest} aria-label="Copy install command">
+        <slot>{INSTALL_COMMAND}</slot>
+    </button>
+</div>
+
+<script>
+    const resetTimers = new WeakMap<HTMLButtonElement, ReturnType<typeof setTimeout>>()
+
+    document.addEventListener('click', async (event) => {
+        const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-copy-command]') : null
+        if (!button) return
+
+        const command = button.dataset.copyCommand
+        if (!command) return
+
+        try {
+            await navigator.clipboard.writeText(command)
+        } catch {
+            return
+        }
+
+        const status = button.parentElement?.querySelector<HTMLElement>('[data-copy-status]')
+        if (!status) return
+
+        status.textContent = 'Copied'
+        status.classList.remove('hidden')
+
+        clearTimeout(resetTimers.get(button))
+        resetTimers.set(
+            button,
+            setTimeout(() => {
+                status.textContent = ''
+                status.classList.add('hidden')
+            }, 2000)
+        )
+    })
+</script>

@@ -1,0 +1,154 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { SITE_EMAIL } from '../const'
+---
+
+<Layout title="Terms of Service | Helio" description="Terms for Helio's website, hosted offerings, support, and professional services. The open-source proxy remains governed by Apache 2.0.">
+    <main>
+        <section>
+            <div class="mx-auto max-w-4xl px-6">
+                <div class="pb-32 pt-32 md:pt-48">
+                    <h1 class="text-title text-center text-4xl font-semibold sm:text-5xl">Terms of Service</h1>
+                    <p class="text-body mt-4 text-center">Last updated: August 2026</p>
+
+                    <div class="prose prose-gray mx-auto mt-12 max-w-none dark:prose-invert">
+                        <p>1. Scope and Parties</p>
+                        <p>
+                            1.1 These Terms of Service ("Terms") govern use of Helio's website, hosted services, and related commercial offerings (together, the "Service") by business customers and commercial entities ("Customer"). The Service is intended exclusively for business use. Use of the Service by consumers for personal, household, or domestic purposes is excluded. The Customer may use the Service solely within the scope of its own business operations and by its own personnel. Any further use, in particular by third parties or
+                            for the provision of services to third parties, shall not be permitted unless expressly agreed in writing with the Provider.
+                        </p>
+                        <p>1.2 Helio is operated by Helio Ltd. ("Helio", "Provider", "we" or "us"), a company incorporated and registered in England and Wales. The Provider and the Customer ("you") agree that only these Terms shall govern the contract for the Service. Any conflicting terms proposed by the Customer are expressly rejected.</p>
+                        <p>1.3 Any deviating or supplemental terms of the Customer will not become part of the contract unless we have expressly agreed to them in writing.</p>
+                        <p>1.4 The Helio proxy software published on GitHub is licensed separately under the Apache License 2.0. Use of that open-source software is governed by that licence, not by these Terms, except where you also subscribe to a Helio hosted or enterprise Service. These Terms apply to the website, paid or hosted offerings, and any support or professional services we provide.</p>
+
+                        <p>2. Services Provided by Helio</p>
+                        <p>2.1 Core Service: Helio is a governance proxy for Model Context Protocol ("MCP") tool calls. It sits between AI agents and the MCP servers or tools they use, so that policy, spend limits, evidence checks, approvals, tool-definition drift controls, and an audit trail can be applied without changing agent code or upstream MCP servers.</p>
+                        <p>What Helio does:</p>
+                        <ul>
+                            <li>proxy MCP tool calls and evaluate them against Customer-configured policy rules (including allow, deny, rate-limit, spend-limit, and require-approval actions);</li>
+                            <li>enforce cumulative cross-tool spend budgets and rate limits where configured;</li>
+                            <li>require evidence or prerequisite actions before specified tool calls, where the Customer enables those rules (including via the optional SDK);</li>
+                            <li>hold specified calls for human approval (for example via Slack, a webhook, or a dashboard) where configured;</li>
+                            <li>detect tool-definition drift against a reviewed baseline and block, hold, or log according to policy;</li>
+                            <li>record allow, hold, and deny decisions in an audit trail;</li>
+                            <li>return structured feedback when a call is blocked so an agent can retry a permitted path;</li>
+                            <li>for enterprise Customers, provide hosted dashboard, incident log, SSO, audit export, policy-pack, and support services as agreed in the order.</li>
+                        </ul>
+                        <p>What Helio does not do:</p>
+                        <ul>
+                            <li>rewrite, host, or operate the Customer's agents, models, or MCP servers;</li>
+                            <li>guarantee that an agent will not attempt a blocked action, only that a matching call is not forwarded when policy so requires and Helio is in the path;</li>
+                            <li>control third-party model providers, MCP servers, payment networks, or other upstream systems;</li>
+                            <li>replace the Customer's own security, legal, compliance, or risk programme;</li>
+                            <li>warrant that any particular policy configuration will prevent loss, unauthorised spend, or regulatory breach.</li>
+                        </ul>
+                        <p>The exact features of the open-source software are described in the Helio repository and documentation. Hosted and enterprise features are as described on our website and in the applicable order.</p>
+
+                        <p>2.2 Provision of Software and Hosted Services: The open-source Helio proxy is available for self-hosted use under the Apache License 2.0. Where the Customer purchases a hosted or enterprise Service, Helio shall grant the Customer access to and use of the then-current version of that Service. The Provider is only obliged to make available the most recent, operational version of the hosted Service at any given time.</p>
+                        <p>2.3 Service Modifications: Helio may make reasonable changes to the Service (e.g. to improve performance or comply with laws) provided such changes do not eliminate core features of the Service. We will inform you of any material changes in a timely manner.</p>
+                        <p>
+                            2.4 Third-Party Components: If our Service relies on third-party providers or data sources (including MCP servers, Slack, identity providers, payment processors, or hosting), availability of those external services is outside of Helio's control; if a third-party ceases to provide a necessary component, we will inform you and strive to find a suitable alternative or solution. Without limiting the foregoing, Helio expressly reserves the right, at its reasonable discretion, to modify or replace third-party integrations
+                            used in connection with the provision of the hosted Service.
+                        </p>
+                        <p>
+                            2.5 No Guaranteed Results: Unless explicitly agreed, Helio does not guarantee specific outcomes from using the Service, including that agents will behave as intended, that all tool calls will be intercepted, or that any policy will prevent a particular class of incident. The Customer supplies configuration (for example <code>helio.yaml</code>), policy rules, and connections to agents and MCP servers ("Input"). Decisions, audit records, and dashboard views produced from that Input are "Output". Input and Output are collectively "Content." The quality and effect of the Output therefore depend on the quality of the Customer's configuration, deployment, and upstream systems. Helio therefore does not warrant
+                            that the Output will meet the Customer's expectations.
+                        </p>
+
+                        <p>3. Service Levels; Maintenance and Interruptions</p>
+                        <p>3.1 Service Levels: For hosted Services, the Provider aims to maintain a monthly availability of 99% at the delivery point (the network interface of the Provider's data centre), unless a different commitment is agreed in writing. "Availability" means the Customer's ability to access and use the main functions of the hosted Service. Periods of scheduled maintenance, force majeure, and interruptions caused by the Customer or third parties for whom the Provider is not responsible shall not be deemed downtime. Self-hosted open-source software is provided without an availability commitment.</p>
+                        <p>3.2 Maintenance: Helio may regularly maintain hosted software and inform the Customer in due time of any usage restrictions associated therewith.</p>
+                        <p>3.3 Other Interruptions: Helio depends on the Customer's agents, networks, MCP servers, and other third-party systems remaining reachable. We do not control those systems and do not warrant that the Service will be completely error-free or uninterrupted, but we will use commercially reasonable efforts to promptly address any material issues in hosted Services we operate.</p>
+
+                        <p>4. Use Requirements</p>
+                        <p>
+                            4.1 Responsibilities: The Customer agrees to use Helio's Service only for legitimate business purposes and in compliance with all applicable laws. You must keep confidential any login credentials, dashboard secrets, and similar access material, and prevent unauthorised access to the Service. You are responsible for your agents, MCP servers, policy configuration, and the lawfulness of tool calls your agents attempt (including ensuring that use of connected tools does not violate any applicable law, governmental orders, or third-party rights). You represent and warrant that you have all rights, licences, and permissions needed to connect your systems to Helio and to process data that passes through it.
+                        </p>
+                        <p>4.2 Prohibited Uses: You shall not attack, overload, or circumvent access controls on a hosted Service, or otherwise misuse the Service. These restrictions do not limit rights granted to you under the Apache License 2.0 for the open-source Helio software. In the event of a breach of these obligations in respect of the Service, Helio is entitled to temporarily suspend or restrict your access to the Service, after reasonable notice if feasible, and/or terminate the contract for material breach pursuant to Section 10.4 below.</p>
+
+                        <p>5. Intellectual Property and Data</p>
+                        <p>5.1 Service IP: The open-source Helio software is licensed under the Apache License 2.0. Helio Ltd. retains copyright, trademarks, and other intellectual property in Helio's name, branding, website, and hosted Service (including proprietary dashboard, support, and enterprise components not released under an open-source licence). Except for rights granted by the Apache License 2.0 or an applicable order, Helio grants the Customer a limited, non-exclusive, non-transferable right to use the hosted Service during the term of the contract for the Customer's internal business operations, in accordance with these Terms.</p>
+                        <p>
+                            5.2 Customer Data: The Customer retains all rights to the data, content, configuration, and materials that you upload or provide to Helio ("Customer Data"), including policy files and any audit or incident data you store with a hosted Service. By providing Customer Data, you grant Helio a licence to process and use that data only to the extent necessary to perform the Service and fulfil our contractual obligations. Helio will handle Customer Data in compliance with applicable data protection laws (including the UK GDPR and Data Protection Act 2018) and our
+                            Privacy Policy. We will not use or share your Customer Data for any other purposes without your consent. Upon termination of the contract, and upon your request, we will delete or return your Customer Data that remains stored with us, except to the extent we are legally required to retain it. Data that never leaves a self-hosted deployment is not Customer Data processed by Helio under this section.
+                        </p>
+
+                        <p>6. Fees, Payment Terms, and Set-off</p>
+                        <p>6.1 Fees: The open-source Helio proxy is available at no charge under the Apache License 2.0. Where the Customer purchases a hosted or enterprise Service, the Customer shall pay the fees as agreed in the order or contract form (e.g. per the pricing models laid out on our website). All prices are exclusive of VAT, which will be added at the applicable rate where required by law.</p>
+                        <p>
+                            6.2 Invoicing, Payment, and Suspension of Service: Helio will invoice fees per the agreed billing cycle (e.g. monthly or annually in advance). Invoices will be provided via Stripe – a payment service provider – or directly by us, depending on what was agreed upon. Payments are due within 14 days of the invoice date, unless a different period is specified in writing. Payment shall be made via the payment method agreed (e.g. bank transfer to the stated account or
+                            credit card). If the Customer fails to pay on time, Helio may charge interest on overdue amounts in accordance with the Late Payment of Commercial Debts (Interest) Act 1998 (currently 8% above the Bank of England base rate). Helio also reserves the right, after giving a reminder and reasonable grace period, to suspend Service access until overdue amounts are paid.
+                        </p>
+                        <p>
+                            6.3 No Set-off Except for Uncontested Claims: The Customer may only set off counterclaims against Helio's payment claims if those counterclaims are undisputed by Helio or finally adjudicated by a court. In other words, you cannot withhold or reduce payments by offsetting any claims you have against us, unless such claims have been acknowledged by Helio or confirmed by a final court judgment. These restrictions are in place to ensure that payment obligations are
+                            met timely; they do not limit your right to claim damages or other remedies separately.
+                        </p>
+
+                        <p>7. Free Trial Period</p>
+                        <p>7.1 Trial Access: From time to time, Helio may offer the Customer access to a hosted Service on a trial basis, free of charge, for a limited period as determined by Helio ("Trial Period").</p>
+                        <p>7.2 Scope: During the Trial Period, the Service is provided solely for the purpose of evaluating the Service and may be subject to limitations on features, functionality, or usage as determined by Helio at its discretion.</p>
+                        <p>7.3 Termination: Helio reserves the right to suspend or terminate the Trial Period at any time, with or without notice. At the end of the Trial Period, continued use of the hosted Service will be subject to the applicable subscription plan and fees.</p>
+
+                        <p>8. Warranties and Disclaimers</p>
+                        <p>8.1 Service Standards: Helio warrants that hosted Services will be provided with reasonable care and skill in accordance with generally accepted industry standards. The provisions of the Supply of Goods and Services Act 1982 shall apply to the extent not excluded by these Terms. Open-source software is provided under the Apache License 2.0, including its disclaimer of warranties.</p>
+                        <p>8.2 Notification of Defects: The Customer shall notify Helio without undue delay of any defects or disruptions of a hosted Service upon their discovery and describe them in a comprehensible manner. If the Customer fails to provide timely notification, the Customer may not claim reduction of fees or damages to the extent that Helio could not remedy the issue due to the delayed notification.</p>
+                        <p>8.3 Exclusions: Subject to Section 9.1, Helio does not warrant that the Service will be uninterrupted, error-free, or meet the Customer's specific requirements, or that it will detect or prevent every unauthorised, costly, or harmful tool call. All other warranties, conditions, and terms, whether express or implied by statute, common law, or otherwise, are excluded to the fullest extent permitted by law.</p>
+
+                        <p>9. Limitation of Liability</p>
+                        <p>9.1 Unlimited Liability: Nothing in these Terms shall limit or exclude Helio's liability for: (a) death or personal injury caused by negligence; (b) fraud or fraudulent misrepresentation; (c) any liability which cannot be limited or excluded by applicable law, including liability under the Consumer Protection Act 1987.</p>
+                        <p>9.2 Limited Liability: Subject to Section 9.1, Helio's total aggregate liability to the Customer under or in connection with these Terms, whether in contract, tort (including negligence), breach of statutory duty, or otherwise, shall not exceed the total fees paid by the Customer to Helio in the twelve (12) months preceding the claim.</p>
+                        <p>9.3 Excluded Losses: Subject to Section 9.1, Helio shall not be liable for any: (a) loss of profits, revenue, business, or anticipated savings; (b) loss of data or corruption of data; (c) unauthorised tool calls, spend, or changes made by the Customer's agents or upstream systems; (d) loss of goodwill or reputation; (e) indirect, special, or consequential loss or damage, even if Helio was advised of the possibility of such loss.</p>
+                        <p>9.4 Further Liability Limitations: To the extent Helio's liability is limited or excluded under the provisions above, the same limitations or exclusions apply to the personal liability of Helio's officers, employees, agents, and subcontractors.</p>
+                        <p>9.5 Indemnification by Customer: The Customer shall indemnify and hold Helio harmless from any third-party claims arising out of the Customer's unlawful use of the Service or breach of these Terms, to the extent the Customer is responsible for such breach.</p>
+
+                        <p>10. Term and Termination</p>
+                        <p>10.1 Contract Term: The contract for use of a Helio hosted or enterprise Service begins when the Customer accepts these Terms and enters into an agreement for the Service (including by completing an order). The term of the contract is as specified in your order (e.g. a monthly or a 12-month subscription) or, if no specific term is agreed, it is for an indefinite period.</p>
+                        <p>10.2 Ordinary Termination: Either party may terminate:</p>
+                        <ul>
+                            <li>a monthly subscription at any time, effective at the end of the current payment cycle;</li>
+                            <li>a 12-month subscription by giving thirty (30) days' notice, effective at the end of the 12-month cycle;</li>
+                            <li>an indefinite-term contract for convenience by giving thirty (30) days' notice to the end of a calendar month (unless a different notice period is agreed elsewhere in writing).</li>
+                        </ul>
+                        <p>Absent timely notice of non-renewal (if renewal is agreed), the contract may renew as per the agreed terms. Notice of termination must be given in writing (including by email).</p>
+                        <p>10.3 Termination After Switching: If the contract ends due to switching to another data processing service per clause 11, then for any prepaid 12-month subscription the Customer's refund (if any) equals the annual fee paid minus the charges that would have applied under the Provider's standard month-to-month plan for the period from the start of the annual term to the termination effective date (any partial month counts as a full month), but never below zero.</p>
+                        <p>
+                            10.4 Termination for Material Breach: Either party may terminate the contract with immediate effect by written notice if the other party commits a material breach of these Terms and (where such breach is capable of remedy) fails to remedy such breach within thirty (30) days of receiving written notice specifying the breach. Material breach by the Customer includes, for example, serious breach of these Terms (such as misuse of the Service or persistent non-payment) or
+                            insolvency of the Customer. In case of termination for material breach by the Customer, Helio may immediately suspend access to the Service.
+                        </p>
+                        <p>
+                            10.5 Effects of Termination: Upon termination or expiration of the contract, Helio will deactivate the Customer's hosted account and cease providing the Service to the Customer. Helio may delete Customer Data associated with the account after a reasonable retention period, except for data we must retain by law. Any fees paid in advance for periods after termination will be refunded pro rata only if the termination was due to Helio's material breach; otherwise, there is
+                            no automatic refund for early termination of a fixed term. Any clauses that by their nature are meant to continue (such as confidentiality, liability, governing law, etc.) shall remain in effect despite termination. Termination of a hosted Service does not revoke rights you already have under the Apache License 2.0 for the open-source software.
+                        </p>
+
+                        <p>11. Data Migration / Compliance With the UK Data Act</p>
+                        <p>
+                            To the extent applicable under UK law (including any UK implementation of data portability requirements), Customers may switch to another data processing service or to on-premise solutions by giving no more than two (2) months' prior written notice. Helio shall provide the Customer, without undue delay and in a commonly used, machine-readable format, with access to all exportable data (including relevant metadata) and shall provide reasonable assistance to enable
+                            switching. Upon the successful completion of the switching process, this Contract shall be considered terminated. Helio may charge reasonable, cost-based fees for such assistance. Any contractual terms inconsistent with mandatory data portability rights under applicable law shall be deemed replaced by such mandatory provisions.
+                        </p>
+
+                        <p>12. Governing Law and Jurisdiction</p>
+                        <p>12.1 Governing Law: These Terms and any disputes arising out of or in connection with them (including non-contractual disputes) shall be governed by and construed in accordance with the laws of England and Wales.</p>
+                        <p>12.2 Jurisdiction: The courts of England and Wales shall have exclusive jurisdiction to settle any dispute arising out of or in connection with these Terms. This jurisdiction clause does not limit either party's right to seek interim injunctive relief in any appropriate jurisdiction if necessary.</p>
+
+                        <p>13. Reference Use</p>
+                        <p>
+                            Helio may publicly refer to the Customer as a client for marketing and promotional purposes. In particular, Helio is entitled to use the Customer's name, logo, and general branding in reference lists, on its website, in presentations, and in other marketing materials (both online and offline), provided this is done in a factual and appropriate manner. This right shall survive the termination of the contract, unless the Customer objects to such use in writing for
+                            legitimate reasons. Helio will not disclose any confidential information of the Customer in this context.
+                        </p>
+
+                        <p>14. General Provisions</p>
+                        <p>
+                            14.1 Changes to Terms: Helio reserves the right to modify or update these Terms. For existing contracts, Helio will notify the Customer in writing (including by email) of proposed changes at least six (6) weeks in advance. The changes shall be deemed accepted if the Customer does not object in writing within the notice period. Helio will specifically inform the Customer of this consequence in the change notice. If the Customer objects to the changes, each party
+                            has the right to terminate the contract by notice before the changes take effect.
+                        </p>
+                        <p>14.2 Entire Agreement: These Terms, together with any individual order or contract document referencing them, constitute the entire agreement between Helio and the Customer regarding the Service and supersede all prior agreements, understandings, and representations. Any amendments or additions to this contract must be made in writing (including by email).</p>
+                        <p>14.3 Severability: If any provision of these Terms is found by any court or administrative body of competent jurisdiction to be invalid or unenforceable, such invalidity or unenforceability shall not affect the other provisions of these Terms, which shall remain in full force and effect. The parties shall negotiate in good faith to replace any invalid provision with a valid provision that achieves the original commercial intent.</p>
+                        <p>14.4 No Waiver: No failure or delay by either party in exercising any right or remedy under these Terms shall constitute a waiver of that right or remedy, nor shall it prevent or restrict the further exercise of that or any other right or remedy.</p>
+                        <p>14.5 Third Party Rights: A person who is not a party to these Terms shall have no rights under the Contracts (Rights of Third Parties) Act 1999 to enforce any of its terms.</p>
+                        <p>14.6 Contact: Helio Ltd., 128 City Road, London EC1V 2NX, United Kingdom, is the provider of the Service. For any questions or communications regarding these Terms, you may contact us at <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a>. Our Privacy Policy can be found on our website.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</Layout>

@@ -1,0 +1,57 @@
+---
+type PlatformLogo = {
+    src: string
+    label: string
+    iconClass?: string
+}
+
+const logos: PlatformLogo[] = [
+    { src: '/customers/chatgpt.svg', label: 'ChatGPT' },
+    { src: '/customers/claude.svg', label: 'Claude' },
+    { src: '/customers/cursor.svg', label: 'Cursor' },
+    { src: '/customers/langchain.svg', label: 'LangChain' },
+    { src: '/customers/langgraph.svg', label: 'LangGraph' },
+    { src: '/customers/crewai-icon.svg', label: 'CrewAI' },
+    { src: '/customers/autogen.svg', label: 'AutoGen' },
+    { src: '/customers/pydantic-ai.svg', label: 'PydanticAI' },
+    { src: '/customers/llamaindex.svg', label: 'LlamaIndex' },
+    { src: '/customers/mastra.svg', label: 'Mastra' },
+    { src: '/customers/mcp-agent.svg', label: 'Any MCP agent' },
+]
+
+const lockupClass = 'flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold tracking-tight text-gray-900 sm:gap-2 sm:text-[15px]'
+---
+
+<div class="text-title px-6 text-center text-lg font-medium sm:px-12">Works with your agents and frameworks</div>
+<div class="group relative mt-12 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+    <div class="agent-logo-track animate-logo-marquee flex w-max items-center group-hover:[animation-play-state:paused]">
+        {
+            [0, 1].map((setIndex) => (
+                <div class="flex items-center gap-x-10 px-5 sm:gap-x-14 sm:px-7" aria-hidden={setIndex === 1 ? 'true' : undefined} data-marquee-clone={setIndex === 1 ? '' : undefined}>
+                    {logos.map((logo) => (
+                        <span class={lockupClass} role={setIndex === 0 ? 'img' : undefined} aria-label={setIndex === 0 ? logo.label : undefined}>
+                            <img class={logo.iconClass ?? 'h-5 w-5 sm:h-6 sm:w-6'} src={logo.src} alt="" height="24" width="24" loading="eager" />
+                            {logo.label}
+                        </span>
+                    ))}
+                </div>
+            ))
+        }
+    </div>
+</div>
+
+<style>
+    @media (prefers-reduced-motion: reduce) {
+        .agent-logo-track {
+            animation: none;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+            row-gap: 1.5rem;
+        }
+
+        .agent-logo-track [data-marquee-clone] {
+            display: none;
+        }
+    }
+</style>

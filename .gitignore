@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+.output/
+.vercel/
+build/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+env.example
+
+# Secrets / credentials
+*.pem
+*.key
+*.p12
+credentials.json
+*-credentials.json
+*service-account*.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+._*
+Thumbs.db
+
+# IDE / editor
+.idea/
+*.swp
+*.swo
+*~
+
+# Local / private project files
+.local/
+
+# Local design iterations (not production)
+.design-partner/
+.design-preview/
+
+# AI agent tooling (local symlinks, caches, and configs)
+.agents/
+.claude/
+.cursor/
+.playwright-mcp/
+
+skills/

@@ -1,0 +1,146 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { SITE_EMAIL, SITE_GITHUB, SITE_SOCIAL_TWITTER, SITE_URL } from '../const'
+
+const docsUrl = `${SITE_GITHUB}/blob/main/docs/getting-started.md`
+
+const principles = [
+    {
+        n: '01',
+        title: 'Plain text over magic',
+        body: 'Config is YAML you can read. Every decision can be traced to a matching rule and an audit record. No hidden model makes policy decisions.',
+    },
+    {
+        n: '02',
+        title: 'Boring is good',
+        body: 'Predictable beats clever. Rules apply in the order you wrote them. No ML in the hot path, no inference, no surprises during incidents.',
+    },
+    {
+        n: '03',
+        title: 'Local-first',
+        body: "You run Helio on your own infrastructure. Tool calls don't leave your network unless you choose to send them. We don't ingest your traffic.",
+    },
+    {
+        n: '04',
+        title: 'Refuse, but explain',
+        body: 'When Helio blocks an action it tells the agent what failed and what would unblock it. Errors should teach, not stonewall.',
+    },
+    {
+        n: '05',
+        title: 'Compatibility over reinvention',
+        body: 'MCP already connects agents and tools. Helio stays inside that protocol: change the endpoint configuration; keep your agent and server code.',
+    },
+    {
+        n: '06',
+        title: 'One codebase, one license',
+        body: 'Every software feature ships under Apache 2.0: the proxy, dashboard, policy engine, approvals, and audit trail. Paid help is for services and support, not access to the product.',
+    },
+]
+
+const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'About', item: `${SITE_URL}/about/` },
+    ],
+}
+
+const linkClass = 'font-medium text-gray-900 underline decoration-gray-300 underline-offset-[3px] transition-colors hover:decoration-main-500'
+const githubIssuesUrl = `${SITE_GITHUB}/issues`
+const changelogUrl = `${SITE_GITHUB}/blob/main/CHANGELOG.md`
+const twitterHandle = '@get_helio'
+const stripe = 'h-3 [--stripes-color:theme(colors.gray.200)] [background-image:linear-gradient(-45deg,var(--stripes-color)_25%,transparent_25%,transparent_50%,var(--stripes-color)_50%,var(--stripes-color)_75%,transparent_75%,transparent)] [background-size:5px_5px]'
+---
+
+<Layout title="Why Helio Exists | Open-source MCP Governance" description="Why Helio keeps agent policy, evidence, approvals, budgets, and audit records outside the model. Open source, self-hosted, and built for MCP.">
+    <Fragment slot="head">
+        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    </Fragment>
+    <main class="duration-150">
+        <section class="relative mx-auto max-w-5xl px-4 pt-36 lg:px-0">
+            <div class="absolute -z-10 h-full w-full scale-[0.8] bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+            <div class="mb-6 flex justify-center">
+                <span class="relative rounded-full px-3 py-1 text-sm font-medium text-gray-600 ring-1 ring-gray-900/10 hover:ring-main-500/20">About</span>
+            </div>
+            <div class="mx-auto my-8 max-w-2xl">
+                <h1 class="text-title text-4xl font-semibold sm:mt-12 sm:text-6xl">Why Helio exists</h1>
+                <div class="text-body mt-8 space-y-5">
+                    <p>
+                        AI agents already do more than answer questions. They call APIs, spend money, change customer records, and deploy code. Once software can act, capability is only half the question. The other half is <em>what is this agent allowed to do, under which conditions, and who can prove what happened</em>.
+                    </p>
+                    <p>Built-in controls help inside one model provider or framework. They do not carry one policy across Claude, ChatGPT, LangChain, CrewAI, and the systems those agents reach. Stripe knows a payment call arrived. It does not know whether the agent completed the required lookup or already exhausted a shared budget.</p>
+                    <p>Helio sits in that gap. It keeps policy, evidence, budgets, approvals, and the audit trail outside the model's context. The software is open source, runs on your infrastructure, and treats governance like code: declarative, versionable, and reviewable.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="relative mt-8 sm:mt-16">
+            <div aria-hidden="true" class="border-t border-gray-200"></div>
+            <div class="mx-auto max-w-6xl border-x px-3">
+                <div class="border-x">
+                    <div aria-hidden="true" class={stripe}></div>
+
+                    <!-- How we build -->
+                    <div class="border-t px-4 py-16 sm:px-8 sm:py-20 md:px-12 md:py-24">
+                        <p class="mb-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-main-500">How we build</p>
+                        <h2 class="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">Operating principles</h2>
+                        <p class="mt-3.5 max-w-xl text-[15px] leading-relaxed text-gray-600">These are the rules we use when a product decision gets difficult.</p>
+
+                        <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-12">
+                            {
+                                principles.map((item) => (
+                                    <div>
+                                        <div class="mb-2.5 font-mono text-[11px] tracking-[0.08em] text-main-500">{item.n}</div>
+                                        <h3 class="mb-2 text-lg font-semibold tracking-tight text-gray-900">{item.title}</h3>
+                                        <p class="text-sm leading-relaxed text-gray-600">{item.body}</p>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
+
+                    <!-- TODO: Add a maintainer trust section with names, relevant experience, and profile links. -->
+
+                    <!-- Contact us -->
+                    <div id="contact" class="border-t px-4 py-16 sm:px-8 sm:py-20 md:px-12 md:py-24">
+                        <p class="mb-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-main-500">Company</p>
+                        <h2 class="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">Contact</h2>
+                        <p class="mt-8 max-w-xl text-[17px] leading-relaxed text-gray-600">
+                            Setting up Helio? Start with the <a href={docsUrl} target="_blank" rel="noopener noreferrer" class={linkClass}>five-minute quickstart</a>. Found a bug or have a feature request? Open a <a href={githubIssuesUrl} target="_blank" rel="noopener noreferrer" class={linkClass}>GitHub issue</a>.
+                        </p>
+                        <p class="mt-6 max-w-xl text-[17px] leading-relaxed text-gray-600">
+                            For everything else, email <a href={`mailto:${SITE_EMAIL}`} class={linkClass}>{SITE_EMAIL}</a> or follow <a href={SITE_SOCIAL_TWITTER} target="_blank" rel="noopener noreferrer" class={linkClass}>{twitterHandle}</a> for project updates.
+                        </p>
+                        <p class="mt-6 max-w-xl text-[17px] leading-relaxed text-gray-600">
+                            Running agents that touch money, customer data, or production systems? <a href="/#pricing" data-design-partner class={linkClass}>Talk to the maintainers</a>.
+                        </p>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="border-t px-4 py-16 sm:px-8 sm:py-20 md:px-12 md:py-24">
+                        <p class="mb-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-main-500">Status</p>
+                        <h2 class="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">Where the project is today</h2>
+                        <p class="mt-3.5 max-w-2xl text-[15px] leading-relaxed text-gray-600">Helio is in beta. The proxy, bundled dashboard, policies, cross-tool budgets, approvals, evidence checks, drift detection, and audit trail are working today. Before 1.0, releases may include breaking configuration or data changes. The <a href={changelogUrl} target="_blank" rel="noopener noreferrer" class={linkClass}>changelog</a> is the source of truth for each release.</p>
+                        <div class="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-2.5">
+                            <a href={SITE_GITHUB} target="_blank" rel="noopener noreferrer" class="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-main-500">
+                                Star on GitHub
+                                <span class="hidden size-5 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-1.5 group-hover:bg-white/20 sm:flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" class="size-3.5" aria-hidden="true">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m10 16 4-4-4-4"></path>
+                                    </svg>
+                                </span>
+                            </a>
+                            <a href={docsUrl} target="_blank" rel="noopener noreferrer" class="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-gray-300 bg-white px-5 text-sm font-medium text-gray-900 shadow-sm transition hover:bg-gray-50"> Read the quickstart </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto max-w-6xl border-x border-t border-gray-200 p-1 px-3">
+                <div aria-hidden="true" class="h-3 [--stripes-color:theme(colors.gray.200)] [background-image:linear-gradient(-45deg,var(--stripes-color)_25%,transparent_25%,transparent_50%,var(--stripes-color)_50%,var(--stripes-color)_75%,transparent_75%,transparent)] [background-size:5px_5px]"></div>
+            </div>
+            <div aria-hidden="true" class="border-b border-gray-200"></div>
+        </section>
+    </main>
+</Layout>

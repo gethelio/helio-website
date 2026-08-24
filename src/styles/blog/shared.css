@@ -1,0 +1,112 @@
+.blog-hero-dots,
+.article-hero-dots {
+    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+    background-size: 16px 16px;
+    mask-image: radial-gradient(ellipse 55% 70% at 18% 40%, #000 40%, transparent 100%);
+}
+
+.blog-cat-guide {
+    color: #175cd3;
+}
+.blog-cat-governance {
+    color: #7c3aed;
+}
+.blog-cat-security {
+    color: #dc2626;
+}
+.blog-cat-mcp {
+    color: #0891b2;
+}
+.blog-cat-agent {
+    color: #067647;
+}
+
+.blog-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: ui-monospace, 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.blog-tag i {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    background: currentColor;
+    flex-shrink: 0;
+}
+.blog-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px 10px;
+}
+
+.blog-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+}
+.blog-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 99px;
+    background: #111929;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    display: grid;
+    place-items: center;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.blog-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 168px;
+    gap: 24px;
+    padding: 22px 32px;
+    align-items: start;
+    color: inherit;
+    text-decoration: none;
+}
+.blog-row h3 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    color: #111827;
+    transition: color 0.15s ease;
+}
+.blog-row:hover h3,
+.blog-row:focus-visible h3 {
+    color: #ff4d00;
+}
+.blog-row:focus-visible {
+    outline: none;
+    background: #fafafa;
+}
+.blog-row p {
+    margin-top: 6px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #52525b;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.blog-row-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    padding-top: 2px;
+    text-align: right;
+}

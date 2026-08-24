@@ -1,0 +1,111 @@
+# Helio
+
+> Helio is an open-source MCP governance proxy. It sits in front of every AI agent tool call and enforces policy, spend limits, evidence, approvals, tool-definition drift, and a durable audit trail. No changes to agent code or MCP servers.
+
+## About
+
+Helio is a bet on where AI agents are headed: from chatbots into operators. The interesting question stops being how smart the model is and becomes who is allowed to do what.
+
+Model providers govern what their model says, not what your business does. The platforms agents touch (Stripe, Salesforce, your database) see one tool call at a time, with no context for whether it should have happened. Helio is the layer in between.
+
+The proxy is Apache 2.0, self-hosted, and local-first. Tool calls stay on your infrastructure unless you choose otherwise. Config is YAML you can read. Decisions are paths through rules you can trace. There is no ML in the hot path.
+
+Helio is in beta. The proxy runs, the dashboard ships with it, and v0.10.0 added cumulative cross-tool spend budgets: one depleting pot across every tool that spends, enforced at the gate, with break-glass approvals and a durable spend ledger that survives restarts.
+
+Install:
+
+```
+npx @gethelio/proxy init
+```
+
+## How it works
+
+Clients talk to Helio. Helio talks to servers. You turn that on in three moves: no agent rewrite, no second policy file.
+
+1. **Put the proxy first.** After init, point Claude, ChatGPT, Cursor, LangChain, or CrewAI at Helio. Change the MCP endpoint, not the agent. The servers stay where they are. Proxy-only, or proxy plus a thin Python SDK.
+2. **Start in audit-only.** Ship with `mode: audit`. Every call still lands. You see what would have been denied, held, or blocked, without stopping the agent.
+3. **Enforce the same YAML.** When the trail looks right, set `mode: enforce`. Same file, hot-reloaded. Deny, rate-limit, spend-limit, require approval, require evidence, block on drift. The agent cannot walk around it.
+
+## Core features
+
+Write the policy once. Hot-reload it. Dry-run before you enforce. Claude, Cursor, or CrewAI still have to clear the same gate.
+
+- **Policy engine:** YAML rules for deny, rate-limit, spend-limit, and require approval. Hot-reload. Dry-run before you enforce. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md
+- **Cross-tool budgets:** One depleting pot across Stripe, PayPal, and anything that charges. Durable ledger. Break-glass to a human. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md#cross-tool-spend-budgets
+- **Evidence and chains:** A consequence cannot run until a verified lookup exists. Actions depend on other actions, not on the prompt. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md#evidence-requirements
+- **Approvals:** Hold the call. Route to Slack, a webhook, or the bundled dashboard. The agent waits; it cannot skip the hold. Docs: https://github.com/gethelio/helio/blob/main/docs/approvals.md
+- **Tool-definition drift:** If a server rewrites its schema, Helio blocks, asks, or logs. Default is block. The baseline stays frozen. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md#tool-definition-drift
+- **Audit trail:** Every allow, hold, and deny is a durable event. Start in audit-only. Open the incident log when something fires. Docs: https://github.com/gethelio/helio/blob/main/docs/audit.md
+- **Self-repair:** When blocked, the agent gets a next step: call this tool, then retry. A gate, not a dead end. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md#deny
+- **Proxy, not a rewrite:** Point Claude, Cursor, LangChain, or CrewAI at Helio. Proxy-only, or proxy plus a thin Python SDK.
+
+Helio is not an API gateway. API gateways see HTTP. They do not know a tool was `process_refund` with amount $2,400, whether a lookup happened first, or that the server changed its schema since last review. Helio evaluates the MCP tool call, not the TCP connection.
+
+## Why Helio exists
+
+Three places teams put the control, and why they fail:
+
+- **The prompt.** You wrote "never refund over $1,000." The model can ignore it, walk around it, or drop it after the next tool result. A suggestion is not evaluation.
+- **The platform.** Model providers govern their own chat. They do not govern GitHub, Salesforce, or a refund. No single platform sees the full picture.
+- **The transcript.** When something fires you need who called what, which rule matched, and whether it was forwarded, in a durable ledger. Grepping a conversation is not an audit trail.
+
+Helio evaluates before anything is forwarded. If the rule says deny, the upstream never sees it. The agent does not get a vote.
+
+## Works with
+
+ChatGPT, Claude, Cursor, LangChain, LangGraph, CrewAI, AutoGen, PydanticAI, LlamaIndex, Mastra, and any MCP agent.
+
+## Main pages
+
+- Homepage: https://www.helio.so/
+- About: https://www.helio.so/about/
+- Contact: https://www.helio.so/about/#contact
+- Features: https://www.helio.so/#features
+- How it works: https://www.helio.so/#how-it-works
+- Pricing: https://www.helio.so/#pricing
+- FAQ: https://www.helio.so/#faq
+- Blog: https://www.helio.so/blog/
+- Getting started: https://github.com/gethelio/helio/blob/main/docs/getting-started.md
+- Documentation: https://github.com/gethelio/helio/tree/main/docs
+- GitHub: https://github.com/gethelio/helio
+- Agent Incident Log: https://github.com/gethelio/agent-incident-log
+
+## Blog
+
+Field notes on AI agent governance, MCP, and the runtime controls that keep autonomous systems safe.
+
+- MCP Agent Governance: The Missing Layer Between Your Agent and Disaster: https://www.helio.so/blog/mcp-agent-governance-missing-layer/
+- Context Is Not a Safety Boundary: Where Agent Guardrails Actually Have to Live: https://www.helio.so/blog/context-is-not-a-safety-boundary/
+- Malicious npm Packages With Valid SLSA Provenance: Inside the TanStack Attack: https://www.helio.so/blog/malicious-npm-packages-valid-slsa-provenance-tanstack/
+
+## Pricing
+
+- **Open source (free):** Apache 2.0, self-hosted. Policies, approvals, break-glass, cumulative budgets and rate limits, evidence grounding, tool-definition drift detection, full audit trail and dashboard, community support. Install with `npx @gethelio/proxy init`.
+- **Teams (talk to us):** For teams and agencies running agents that touch money, customer data, or production systems. Everything in open source, plus a policy pack for your tools, a written control assessment, a deployment review before you go live, and a direct line to the maintainers.
+
+The proxy is free. Add the hosted dashboard, approvals, and support when the agents are in production. Enterprise is the hosted desk (dashboard, incident log, SSO, Slack approvals, support), not a requirement for the gate to work.
+
+## Ideal for
+
+- Teams running AI agents that can call tools (MCP) against money, customer data, or production systems
+- Platform and security teams who need a control in the path, not in the prompt
+- Agencies operating agents for clients
+- Anyone who has already wired Claude, ChatGPT, Cursor, LangChain, or CrewAI to MCP servers and needs deny, spend limits, approvals, and an audit trail without rewriting the agent
+
+## Contact
+
+- Website: https://www.helio.so
+- Email: hello@helio.so
+- Twitter/X: https://x.com/get_helio
+- LinkedIn: https://www.linkedin.com/company/get-helio/
+- GitHub: https://github.com/gethelio/helio
+- Design partner booking: https://cal.com/oliguei/helio-design-partner
+
+Helio Ltd., 128 City Road, London EC1V 2NX, United Kingdom.
+
+For product questions, the docs and GitHub issues are the fastest path. If you are running agents that touch money, customer data, or production systems, get in touch from https://www.helio.so/#pricing.
+
+## Legal
+
+- Privacy Policy: https://www.helio.so/privacy-policy/
+- Terms of Service: https://www.helio.so/terms-of-service/

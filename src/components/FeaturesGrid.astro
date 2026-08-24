@@ -1,0 +1,261 @@
+---
+const DOCS = 'https://github.com/gethelio/helio/blob/main/docs'
+
+const features = [
+    {
+        title: 'Policy engine',
+        href: `${DOCS}/policies.md`,
+        body: 'Write YAML rules to deny calls, set limits, or require approval. Changes hot-reload. Dry-run tests a decision without touching the upstream.',
+        icon: 'policy',
+    },
+    {
+        title: 'Cross-tool budgets',
+        href: `${DOCS}/policies.md#cross-tool-spend-budgets`,
+        body: 'Give Stripe, PayPal, and every other payment tool one shared limit. The ledger survives restarts, with human approval for an overage.',
+        icon: 'budgets',
+    },
+    {
+        title: 'Evidence & chains',
+        href: `${DOCS}/policies.md#evidence-requirements`,
+        body: 'Require a verified lookup before a refund or deployment can run. The dependency lives in policy, not in the prompt.',
+        icon: 'evidence',
+    },
+    {
+        title: 'Approvals',
+        href: `${DOCS}/approvals.md`,
+        body: 'Hold a sensitive call and send it to Slack, a webhook, or the bundled dashboard. That call goes nowhere until a human decides.',
+        icon: 'approvals',
+    },
+    {
+        title: 'Tool-definition drift',
+        href: `${DOCS}/policies.md#tool-definition-drift`,
+        body: 'If a server changes a reviewed tool, Helio can block it, ask for approval, or log the change. The default is to block.',
+        icon: 'drift',
+    },
+    {
+        title: 'Audit trail',
+        href: `${DOCS}/audit.md`,
+        body: 'Every call becomes a durable record: who called what, which rule matched, what Helio decided, and what the server returned.',
+        icon: 'audit',
+    },
+    {
+        title: 'Self-repair',
+        href: `${DOCS}/policies.md#deny`,
+        body: 'A blocked agent gets a useful next step: run the missing lookup, request approval, or retry when the limit resets.',
+        icon: 'repair',
+    },
+    {
+        title: 'Proxy, not a rewrite',
+        href: null,
+        body: 'Change the MCP endpoint, not your application code. Use the proxy alone or add the thin Python SDK for richer evidence.',
+        icon: 'proxy',
+    },
+] as const
+
+const icons: Record<string, string> = {
+    policy: '<path d="M12 3l8 4v5c0 5-3.5 8.2-8 9.5C7.5 20.2 4 17 4 12V7l8-4z"/><path d="M9 12l2 2 4-4"/>',
+    budgets: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/>',
+    evidence: '<path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.1 1"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1-1"/>',
+    approvals: '<circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 5-5"/>',
+    drift: '<circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="M6 7.2v9.6"/><path d="M6 12h7.5a4.5 4.5 0 0 1 4.5 4.5"/>',
+    audit: '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><circle cx="4" cy="6" r="1.2"/><circle cx="4" cy="12" r="1.2"/><circle cx="4" cy="18" r="1.2"/>',
+    repair: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    proxy: '<rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M10 12h4"/>',
+}
+---
+
+<div class="helio-feat-stage">
+    <div class="helio-feat-paper" aria-hidden="true">
+        {Array.from({ length: 24 }, () => <div class="helio-feat-pad" />)}
+    </div>
+    <div class="helio-feat-fade" aria-hidden="true"></div>
+
+    <div class="helio-feat-grid">
+        {
+            features.map((feat) => {
+                const inner = (
+                    <>
+                        <svg class="helio-feat-ico text-main-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" set:html={icons[feat.icon]} />
+                        <h3>{feat.title}</h3>
+                        <p>{feat.body}</p>
+                    </>
+                )
+
+                return feat.href ? (
+                    <a class="helio-feat-tile" href={feat.href} target="_blank" rel="noopener noreferrer">
+                        {inner}
+                    </a>
+                ) : (
+                    <div class="helio-feat-tile helio-feat-static" aria-label={feat.title}>
+                        {inner}
+                    </div>
+                )
+            })
+        }
+    </div>
+</div>
+
+<style>
+    .helio-feat-stage {
+        --pad-x: 80px;
+        --pad-y: 72px;
+        --cell-h: 236px;
+        --cols: 4;
+        --rows: 2;
+        --paper: #ffffff;
+        --line: #e5e7eb;
+        position: relative;
+        display: grid;
+        grid-template-columns: var(--pad-x) repeat(var(--cols), minmax(0, 1fr)) var(--pad-x);
+        grid-template-rows: var(--pad-y) repeat(var(--rows), minmax(var(--cell-h), auto)) var(--pad-y);
+    }
+
+    .helio-feat-paper,
+    .helio-feat-fade,
+    .helio-feat-grid {
+        min-width: 0;
+    }
+
+    /* Outer cells share the stage tracks, so extension strokes are the same
+       border-right / border-bottom as the inner tiles. */
+    .helio-feat-paper {
+        grid-area: 1 / 1 / -1 / -1;
+        z-index: 0;
+        display: grid;
+        grid-template-columns: subgrid;
+        grid-template-rows: subgrid;
+        pointer-events: none;
+    }
+
+    .helio-feat-pad,
+    .helio-feat-tile {
+        box-sizing: border-box;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+    }
+
+    .helio-feat-fade {
+        grid-area: 1 / 1 / -1 / -1;
+        z-index: 1;
+        pointer-events: none;
+        background: linear-gradient(to right, var(--paper) 0, rgb(255 255 255 / 0) var(--pad-x), rgb(255 255 255 / 0) calc(100% - var(--pad-x)), var(--paper) 100%), linear-gradient(to bottom, var(--paper) 0, rgb(255 255 255 / 0) var(--pad-y), rgb(255 255 255 / 0) calc(100% - var(--pad-y)), var(--paper) 100%);
+    }
+
+    .helio-feat-grid {
+        grid-area: 2 / 2 / span var(--rows) / span var(--cols);
+        z-index: 2;
+        display: grid;
+        grid-template-columns: subgrid;
+        grid-template-rows: subgrid;
+    }
+
+    .helio-feat-tile {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 10px;
+        min-width: 0;
+        padding: 28px 24px 32px;
+        background: var(--paper);
+        position: relative;
+        z-index: 1;
+        color: inherit;
+        text-decoration: none;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease,
+            z-index 0s;
+    }
+
+    a.helio-feat-tile {
+        cursor: pointer;
+    }
+
+    .helio-feat-static {
+        cursor: default;
+    }
+
+    .helio-feat-tile:focus-visible {
+        outline: none;
+        z-index: 3;
+        background: #fff;
+        box-shadow:
+            0 0 0 1px rgba(255, 77, 0, 0.35),
+            0 0 28px -4px rgba(255, 77, 0, 0.4),
+            0 18px 40px -24px rgba(24, 24, 27, 0.28);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .helio-feat-tile:hover {
+            z-index: 3;
+            background: #fff;
+            transform: translateY(-6px);
+            box-shadow:
+                0 0 0 1px rgba(255, 77, 0, 0.35),
+                0 0 28px -4px rgba(255, 77, 0, 0.4),
+                0 18px 40px -24px rgba(24, 24, 27, 0.28);
+        }
+    }
+
+    .helio-feat-ico {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .helio-feat-tile h3 {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+        color: #111827;
+    }
+
+    .helio-feat-tile p {
+        color: #4b5563;
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 900px) {
+        .helio-feat-stage {
+            --pad-x: 48px;
+            --pad-y: 56px;
+            --cols: 2;
+            --rows: 4;
+        }
+    }
+
+    /* Phone: stacked content-sized tiles. Do not keep subgrid or min-height: 0. */
+    @media (max-width: 560px) {
+        .helio-feat-stage {
+            display: flex;
+            flex-direction: column;
+        }
+        .helio-feat-paper,
+        .helio-feat-fade {
+            display: none;
+        }
+        .helio-feat-grid {
+            display: flex;
+            flex-direction: column;
+            grid-area: unset;
+            width: 100%;
+        }
+        .helio-feat-tile {
+            min-height: auto;
+            height: auto;
+            flex: 0 0 auto;
+            padding: 22px 20px 24px;
+            border-right: none;
+            transform: none;
+        }
+        .helio-feat-tile:first-child {
+            border-top: 1px solid var(--line);
+        }
+    }
+</style>

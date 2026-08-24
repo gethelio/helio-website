@@ -3,9 +3,9 @@ import { DESIGN_PARTNER_BOOKING_URL } from '../const'
 ---
 
 <!-- Design partner modal. Trigger with data-design-partner on any button/link. -->
-<div id="design-partner-modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-gray-950/50 py-8 backdrop-blur-sm sm:items-center">
-    <div class="card bg-ui mx-4 w-full max-w-lg border p-1 shadow-xl shadow-gray-950/10">
-        <div class="relative max-h-[90dvh] overflow-y-auto p-6 sm:p-8">
+<div id="design-partner-modal" class="fixed inset-0 z-50 hidden items-start justify-center overflow-x-hidden overflow-y-auto bg-gray-950/50 px-4 py-8 backdrop-blur-sm sm:items-center">
+    <div class="card bg-ui w-full max-w-lg border p-1 shadow-xl shadow-gray-950/10">
+        <div class="relative max-h-[90dvh] overflow-x-hidden overflow-y-auto p-6 sm:p-8">
             <button type="button" id="design-partner-close-btn" class="absolute right-4 top-4 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600" aria-label="Close">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
@@ -19,8 +19,8 @@ import { DESIGN_PARTNER_BOOKING_URL } from '../const'
                 </div>
 
                 <form id="design-partner-form" class="mt-6 space-y-4 [--input-radius:theme(borderRadius.lg)]" novalidate>
-                    <!-- Honeypot: leave empty. Off-screen so humans never see it. -->
-                    <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+                    <!-- Honeypot: leave empty. Visually hidden so it cannot inflate page width. -->
+                    <div class="sr-only" aria-hidden="true">
                         <label for="dp-fax">Fax</label>
                         <input type="text" id="dp-fax" name="fax" tabindex="-1" autocomplete="off" />
                     </div>
@@ -89,7 +89,7 @@ import { DESIGN_PARTNER_BOOKING_URL } from '../const'
                 </div>
 
                 <div class="mt-6">
-                    <button type="button" id="design-partner-done-btn" class="btn variant-solid intent-primary sz-sm w-full">Done</button>
+                    <button type="button" id="design-partner-done-btn" class="flex w-full items-center justify-center rounded-full bg-gray-950 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-main-500">Done</button>
                 </div>
             </div>
         </div>
@@ -194,11 +194,23 @@ import { DESIGN_PARTNER_BOOKING_URL } from '../const'
         }
     }
 
+    const lockBodyScroll = () => {
+        document.documentElement.classList.add('overflow-hidden')
+        document.body.classList.add('overflow-hidden')
+    }
+
+    const unlockBodyScroll = () => {
+        document.documentElement.classList.remove('overflow-hidden')
+        document.body.classList.remove('overflow-hidden')
+        document.documentElement.scrollLeft = 0
+        document.body.scrollLeft = 0
+    }
+
     const openDesignPartnerModal = () => {
         openedAt = Date.now()
         designPartnerModal.classList.remove('hidden')
         designPartnerModal.classList.add('flex')
-        document.body.classList.add('overflow-hidden')
+        lockBodyScroll()
         emailInput.focus()
         trackEvent('design_partner_modal_opened')
     }
@@ -206,7 +218,7 @@ import { DESIGN_PARTNER_BOOKING_URL } from '../const'
     const closeDesignPartnerModal = () => {
         designPartnerModal.classList.add('hidden')
         designPartnerModal.classList.remove('flex')
-        document.body.classList.remove('overflow-hidden')
+        unlockBodyScroll()
         setTimeout(() => {
             designPartnerFormState.classList.remove('hidden')
             designPartnerSuccessState.classList.add('hidden')

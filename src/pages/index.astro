@@ -8,6 +8,22 @@ import PlatformLogos from '../components/PlatformLogos.astro'
 import CopyInstallCommand, { INSTALL_COMMAND } from '../components/CopyInstallCommand.astro'
 import { buttonVariants } from '@/components/ui/button'
 import { SITE_DESCRIPTION, SITE_GITHUB, SITE_TITLE } from '../const'
+
+const openSourceFeatures = [
+    'Policies, approvals, break-glass',
+    'Cumulative budgets and rate limits',
+    'Evidence grounding',
+    'Tool-definition drift detection',
+    'Full audit trail and dashboard',
+    'Community support',
+] as const
+
+const teamsFeatures = [
+    'Policy pack for your tools',
+    'Written control assessment',
+    'Deployment review before you go live',
+    'Direct line to the maintainers',
+] as const
 ---
 
 <Layout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -140,13 +156,17 @@ import { SITE_DESCRIPTION, SITE_GITHUB, SITE_TITLE } from '../const'
                                     <p class="text-sm">Apache 2.0, self-hosted.</p>
                                 </div>
                                 <hr class="border-dashed" />
-                                <ul class="list-outside list-image-[url(orange-check.svg)] space-y-3 pl-4 text-sm *:pl-2">
-                                    <li>Policies, approvals, break-glass</li>
-                                    <li>Cumulative budgets and rate limits</li>
-                                    <li>Evidence grounding</li>
-                                    <li>Tool-definition drift detection</li>
-                                    <li>Full audit trail and dashboard</li>
-                                    <li>Community support</li>
+                                <ul class="space-y-3 text-sm">
+                                    {
+                                        openSourceFeatures.map((feature) => (
+                                            <li class="flex items-start gap-2">
+                                                <svg class="mt-0.5 size-3.5 shrink-0 text-main-500" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14" aria-hidden="true">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7l3.5 3.5L12 4"></path>
+                                                </svg>
+                                                {feature}
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </div>
                             <CopyInstallCommand wrapClass="w-full sm:w-auto" class="btn variant-outlined intent-gray sz-md w-full py-3 text-sm" data-test="pricing-copy-command">
@@ -160,11 +180,17 @@ import { SITE_DESCRIPTION, SITE_GITHUB, SITE_TITLE } from '../const'
                                 <p class="text-sm text-zinc-400">For teams and agencies running agents that touch money, customer data, or production systems.</p>
                                 <hr class="my-6 border-dashed border-zinc-800" />
                                 <span class="text-sm font-medium">Everything in open source, plus:</span>
-                                <ul class="mt-3 list-outside list-image-[url(white-check.svg)] space-y-1 pl-4 text-sm leading-[1.9] text-zinc-300 *:pl-2">
-                                    <li>Policy pack for your tools</li>
-                                    <li>Written control assessment</li>
-                                    <li>Deployment review before you go live</li>
-                                    <li>Direct line to the maintainers</li>
+                                <ul class="mt-3 space-y-1 text-sm leading-[1.9] text-zinc-300">
+                                    {
+                                        teamsFeatures.map((feature) => (
+                                            <li class="flex items-start gap-2">
+                                                <svg class="mt-[0.35em] size-3.5 shrink-0 text-white" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14" aria-hidden="true">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7l3.5 3.5L12 4"></path>
+                                                </svg>
+                                                {feature}
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </div>
                             <button data-design-partner type="button" class="mt-7 inline-flex w-full items-center justify-center rounded-full bg-white px-[18px] py-3 text-sm font-medium text-[#09090B] transition hover:bg-white/90">Talk to the maintainers</button>

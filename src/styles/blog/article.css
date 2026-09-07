@@ -141,7 +141,7 @@
     padding: 0;
     font-size: 12.5px;
     line-height: 1.6;
-    color: #27272a;
+    color: inherit;
 }
 .article-prose blockquote {
     margin: 8px 0 24px;

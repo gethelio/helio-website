@@ -13,7 +13,7 @@ const faqs = [
     {
         id: 'faq-3',
         question: "Can't the model just ignore the policy, like it ignores the prompt?",
-        paragraphs: ['A prompt is an instruction to the model. Helio evaluates the actual tool call before forwarding it.', 'For tool access routed through Helio, a denied call never reaches the upstream server. Keep Helio on the only network path to make that enforcement structural.'],
+        paragraphs: ['A prompt is an instruction to the model. Helio evaluates the actual tool call before forwarding it.', 'For tool access routed through Helio, a denied call never reaches the upstream server. Keep Helio on the only network path to make that enforcement structural.', "On the default same-user install the agent's own file tools can rewrite the policy file. Helio records every reload attempt and stamps every decision with the hash of the policy it ran under; those records are durable only while the agent cannot write the audit file, and the dashboard event stream and stderr are the channels that leave the box before that. The separate-user and sidecar recipes in the docs put the file, the secret, and the trail where the agent cannot write them."],
     },
     {
         id: 'faq-4',
@@ -28,7 +28,7 @@ const faqs = [
     {
         id: 'faq-6',
         question: 'What stops an agent from trying another tool while a call is held?',
-        paragraphs: ['The held call cannot continue until a human approves it. Any other MCP call routed through Helio is evaluated against its own rules.', 'To prevent a true bypass, route every relevant tool path through Helio and control direct network access to the upstream servers.'],
+        paragraphs: ['The held call cannot continue until a human approves it. Any other MCP call routed through Helio is evaluated against its own rules.', "To prevent a true bypass, route every relevant tool path through Helio, control direct network access to the upstream servers, keep each upstream credential only in Helio's environment so a client pointed straight at the upstream has nothing to authenticate with, and keep Helio's policy file where the agent cannot write it."],
     },
     {
         id: 'faq-7',

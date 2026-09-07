@@ -5,6 +5,7 @@ seoTitle: "MCP Agent Governance: The Missing Runtime Layer"
 metaDescription: "MCP agents can call every tool they can reach. Learn why prompt guardrails fail and how runtime controls govern spend, approvals, and risky actions."
 slug: "mcp-agent-governance-missing-layer"
 pubDate: "2026-06-02"
+updatedDate: "2026-09-07"
 author: "Oli Guei"
 category: "Governance"
 categories: ["Governance", "MCP"]
@@ -52,7 +53,7 @@ Here's the framing I keep coming back to: the right place for a control is _in t
 
 Think of it like a customs checkpoint. You don't ask travellers to self-assess whether they're carrying anything they shouldn't and trust the answer. You put a checkpoint on the route, and everything crossing the border goes through it whether it wants to or not. The agent can decide whatever it likes; the decision only becomes an _action_ if it survives the checkpoint.
 
-Concretely, that means a process that sits between your MCP client and your MCP servers, sees every tool call before it executes, checks it against rules you wrote, and then allows it, blocks it, or pauses it for a human. The agent doesn't know it's there and can't route around it, because it _is_ the route.
+Concretely, that means a process that sits between your MCP client and your MCP servers, sees every tool call before it executes, checks it against rules you wrote, and then allows it, blocks it, or pauses it for a human. For a tool call routed through Helio the model has nothing to negotiate with: the decision is made before the call is forwarded. Whether the agent has another path to the tool, or can rewrite the policy file, is decided by where you run it; [SECURITY.md](https://github.com/gethelio/helio/blob/main/SECURITY.md#process-and-filesystem-boundaries) says how to check.
 
 This is the thing I've been building - an open-source MCP governance proxy called [Helio](https://github.com/gethelio/helio). I'll show you what it looks like in practice, but the pattern matters more than the tool, so steal the idea even if you don't use the project.
 

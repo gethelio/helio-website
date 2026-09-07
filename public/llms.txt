@@ -1,6 +1,6 @@
 # Helio
 
-> Helio is an open-source MCP governance proxy. It sits in front of every AI agent tool call and enforces policy, spend limits, evidence, approvals, tool-definition drift, and a durable audit trail. No changes to agent code or MCP servers.
+> Helio is an open-source MCP governance proxy. It sits in front of every AI agent tool call and enforces policy, spend limits, evidence, approvals, tool-definition drift, and an audit trail. No changes to agent code or MCP servers.
 
 ## About
 
@@ -23,8 +23,8 @@ npx @gethelio/proxy init
 Clients talk to Helio. Helio talks to servers. You turn that on in three moves: no agent rewrite, no second policy file.
 
 1. **Put the proxy first.** After init, point Claude, ChatGPT, Cursor, LangChain, or CrewAI at Helio. Change the MCP endpoint, not the agent. The servers stay where they are. Proxy-only, or proxy plus a thin Python SDK.
-2. **Start in audit-only.** Ship with `mode: audit`. Every call still lands. You see what would have been denied, held, or blocked, without stopping the agent.
-3. **Enforce the same YAML.** When the trail looks right, set `mode: enforce`. Same file, hot-reloaded. Deny, rate-limit, spend-limit, require approval, require evidence, block on drift. The agent cannot walk around it.
+2. **Start in audit-only.** `helio init` writes the `policies` section commented out, so every call still lands and is recorded and nothing is denied.
+3. **Enforce the same YAML.** When the trail looks right, write the rules into the same file; they hot-reload. Deny, rate-limit, spend-limit, require approval, require evidence, block on drift. For a tool call routed through Helio the decision is made before the call is forwarded; whether the agent has another path to the tool, or can rewrite the policy file, is decided by where you run it.
 
 ## Core features
 
@@ -35,7 +35,7 @@ Write the policy once. Hot-reload it. Dry-run before you enforce. Claude, Cursor
 - **Evidence and chains:** A consequence cannot run until a verified lookup exists. Actions depend on other actions, not on the prompt. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md#evidence-requirements
 - **Approvals:** Hold the call. Route to Slack, a webhook, or the bundled dashboard. The agent waits; it cannot skip the hold. Docs: https://github.com/gethelio/helio/blob/main/docs/approvals.md
 - **Tool-definition drift:** If a server rewrites its schema, Helio blocks, asks, or logs. Default is block. The baseline stays frozen. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md#tool-definition-drift
-- **Audit trail:** Every allow, hold, and deny is a durable event. Start in audit-only. Open the incident log when something fires. Docs: https://github.com/gethelio/helio/blob/main/docs/audit.md
+- **Audit trail:** Every allow, hold, and deny is an audit event. Start in audit-only. Open the incident log when something fires. Docs: https://github.com/gethelio/helio/blob/main/docs/audit.md
 - **Self-repair:** When blocked, the agent gets a next step: call this tool, then retry. A gate, not a dead end. Docs: https://github.com/gethelio/helio/blob/main/docs/policies.md#deny
 - **Proxy, not a rewrite:** Point Claude, Cursor, LangChain, or CrewAI at Helio. Proxy-only, or proxy plus a thin Python SDK.
 
@@ -47,9 +47,9 @@ Three places teams put the control, and why they fail:
 
 - **The prompt.** You wrote "never refund over $1,000." The model can ignore it, walk around it, or drop it after the next tool result. A suggestion is not evaluation.
 - **The platform.** Model providers govern their own chat. They do not govern GitHub, Salesforce, or a refund. No single platform sees the full picture.
-- **The transcript.** When something fires you need who called what, which rule matched, and whether it was forwarded, in a durable ledger. Grepping a conversation is not an audit trail.
+- **The transcript.** When something fires you need who called what, which rule matched, and whether it was forwarded, in a record you can query. Grepping a conversation is not an audit trail.
 
-Helio evaluates before anything is forwarded. If the rule says deny, the upstream never sees it. The agent does not get a vote.
+Helio evaluates before anything is forwarded. If the rule says deny, the upstream never sees it. For a tool call routed through Helio the model does not get a vote; whether the agent has another path to the tool, or can rewrite the policy file, is decided by where you run it.
 
 ## Works with
 

@@ -60,7 +60,7 @@ export const WHY_PANELS: WhyPanel[] = [
     id: 'path',
     eyebrow: 'The path',
     title: 'The call never left.',
-    body: 'Helio evaluates each tool call before forwarding it. If policy says deny, the upstream never sees the call. That guarantee holds when Helio owns the path to the tool.',
+    body: 'Helio evaluates each call before forwarding it. If policy says deny, a call routed through Helio never reaches the upstream. Put the policy file and the audit trail where the agent cannot write them and the rule cannot be weakened silently; on the default same-user install Helio records the change instead.',
     helio: true,
     path: [
       { label: 'Claude' },

@@ -1,6 +1,6 @@
 # Helio Marketing Website
 
-The website for [Helio](https://www.helio.so), the open-source governance proxy for MCP agents. Helio enforces policy on tool calls before they reach upstream servers, with spend limits, evidence checks, human approvals, tool-drift detection, and a durable audit trail.
+The website for [Helio](https://www.helio.so), the open-source governance proxy for MCP agents. Helio enforces policy on tool calls before they reach upstream servers, with spend limits, evidence checks, human approvals, tool-drift detection, and an audit trail.
 
 This repository contains the marketing site. The Helio product, documentation, and issue tracker live in the [gethelio/helio](https://github.com/gethelio/helio) repository.
 

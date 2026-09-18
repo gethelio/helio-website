@@ -9,29 +9,17 @@ import CopyInstallCommand, { INSTALL_COMMAND } from '../components/CopyInstallCo
 import { buttonVariants } from '@/components/ui/button'
 import { SITE_DESCRIPTION, SITE_GITHUB, SITE_TITLE } from '../const'
 
-const openSourceFeatures = [
-    'Policies, approvals, break-glass',
-    'Cumulative budgets and rate limits',
-    'Evidence grounding',
-    'Tool-definition drift detection',
-    'Full audit trail and dashboard',
-    'Community support',
-] as const
+const openSourceFeatures = ['Policies, approvals, break-glass', 'Cumulative budgets and rate limits', 'Evidence grounding', 'Tool-definition drift detection', 'Full audit trail and dashboard', 'Community support'] as const
 
-const teamsFeatures = [
-    'Policy pack for your tools',
-    'Written control assessment',
-    'Deployment review before you go live',
-    'Direct line to the maintainers',
-] as const
+const teamsFeatures = ['Policy pack for your tools', 'Written control assessment', 'Deployment review before you go live', 'Direct line to the maintainers'] as const
 ---
 
 <Layout title={SITE_TITLE} description={SITE_DESCRIPTION}>
     <main class="duration-150">
         <section id="home" class="relative mx-auto max-w-5xl px-4 pt-36 lg:px-0">
             <div class="absolute -z-10 h-full w-full scale-[0.8] bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-            <h1 class="text-title mx-auto text-center text-4xl font-semibold sm:mt-12 sm:text-6xl">Govern the action.<br /> Not the prompt.</h1>
-            <p class="text-body mx-auto my-8 max-w-3xl text-center">Helio enforces policy on MCP tool calls before they reach your servers. Set spend limits, require evidence or approval, and keep an audit trail. No agent or server code changes.</p>
+            <h1 class="text-title mx-auto text-center text-4xl font-semibold sm:mt-12 sm:text-6xl">Useful autonomy.<br /> Not unlimited authority.</h1>
+            <p class="text-body mx-auto my-8 max-w-4xl text-center">Helio sits between your agents and the tools they use. It lets routine actions run automatically, requires approval for risky ones, enforces budgets and prerequisites, and keeps a decision trail for every action.</p>
             <div class="mx-auto mt-12 max-w-6xl px-3">
                 <div class="px-2 sm:px-12">
                     <div class="flex w-full flex-col items-center justify-center gap-7 sm:flex-row sm:gap-2.5">
@@ -161,7 +149,7 @@ const teamsFeatures = [
                                         openSourceFeatures.map((feature) => (
                                             <li class="flex items-start gap-2">
                                                 <svg class="mt-0.5 size-3.5 shrink-0 text-main-500" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14" aria-hidden="true">
-                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7l3.5 3.5L12 4"></path>
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7l3.5 3.5L12 4" />
                                                 </svg>
                                                 {feature}
                                             </li>
@@ -185,7 +173,7 @@ const teamsFeatures = [
                                         teamsFeatures.map((feature) => (
                                             <li class="flex items-start gap-2">
                                                 <svg class="mt-[0.35em] size-3.5 shrink-0 text-white" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14" aria-hidden="true">
-                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7l3.5 3.5L12 4"></path>
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7l3.5 3.5L12 4" />
                                                 </svg>
                                                 {feature}
                                             </li>

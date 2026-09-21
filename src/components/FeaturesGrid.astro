@@ -11,19 +11,19 @@ const features = [
     {
         title: 'Cross-tool budgets',
         href: `${DOCS}/policies.md#cross-tool-spend-budgets`,
-        body: 'Give Stripe, PayPal, and every other payment tool one shared limit. The ledger survives restarts, with human approval for an overage.',
+        body: 'Give Stripe, PayPal, and every other payment tool one shared limit across servers. The ledger survives restarts, with human approval for an overage.',
         icon: 'budgets',
     },
     {
-        title: 'Evidence & chains',
+        title: 'Prerequisites & evidence',
         href: `${DOCS}/policies.md#evidence-requirements`,
-        body: 'Require a verified lookup before a refund or deployment can run. The dependency lives in policy, not in the prompt.',
+        body: 'Require a successful prerequisite action. Require fresh application-provided evidence. Helio checks presence and freshness, not content.',
         icon: 'evidence',
     },
     {
         title: 'Approvals',
         href: `${DOCS}/approvals.md`,
-        body: 'Hold a sensitive call and send it to Slack, a webhook, or the bundled dashboard. That call goes nowhere until a human decides.',
+        body: 'Hold a sensitive call and send it to Slack, a webhook, or the bundled dashboard. The approver sees the arguments; the call goes nowhere until a human decides.',
         icon: 'approvals',
     },
     {

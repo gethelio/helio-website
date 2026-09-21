@@ -1,5 +1,5 @@
 export const SITE_TITLE = 'Helio | Governance for MCP agents: useful autonomy'
-export const SITE_DESCRIPTION = 'Helio is an open-source MCP governance proxy for policies, spend limits, approvals, evidence checks, and audit trails. No agent or server code changes.'
+export const SITE_DESCRIPTION = 'Helio is an open-source MCP governance proxy for policies, budgets, approvals, prerequisites, evidence, and audit trails. No agent or server code changes.'
 export const SITE_URL = 'https://www.helio.so'
 export const SITE_IMAGE = '/helio-opengraph.png'
 export const SITE_EMAIL = 'hello@helio.so'

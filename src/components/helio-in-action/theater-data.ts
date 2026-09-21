@@ -71,7 +71,7 @@ export const THEATER_SCENES: Record<TheaterMode, TheaterScene> = {
     upstream: 'shop',
     tool: 'process_refund',
     args: [['order ', { strong: '9182' }], ['client asked to skip the lookup']],
-    policy: 'policies:\n  rules:\n    - match:\n        tool: process_refund\n      action: deny\n      evidence:\n        requires: [orders.lookup]',
+    policy: 'policies:\n  rules:\n    - match:\n        tool: process_refund\n      action: allow\n      evidence:\n        requires: [orders.lookup]',
     evidence: 'requires  [orders.lookup]\ndepends   process_refund ← lookup\ngrounding missing',
     drift: 'baseline  frozen\non_tool_drift  block\ndiff  none',
     approval: 'idle',
